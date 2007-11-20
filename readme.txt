@@ -28,10 +28,11 @@ cause problems.  PLEASE deactivate Akismet and other similar plugins before acti
    Using multiple spam-filtering solutions will negatively impact Defensio's performance.
    
    Note: If are upgrading from an older version of Defensio, please deactivate the old plugin before proceeding with
-   the upgrade.
+   the upgrade.  Moreover, please delete the old Defensio plugin directory from your server.  Not doing so could lead
+   to version conflicts.
    
-2. Copy the 'defensio' folder (unzipped from the file you downloaded) into 'wp-content/plugins/'.  You should now 
-   have a file called 'defensio.php' in 'wp-content/plugins/defensio/'.
+2. Copy the 'defensio' folder (unzipped from the file you downloaded) into 'wp-content/plugins/'.  You
+   should now have a file called 'defensio.php' in 'wp-content/plugins/defensio/'.
    
 3. Return to the Plugins tab in your control panel and activate Defensio.
 
