@@ -1,70 +1,56 @@
 <?php
 function defensio_render_configuration_html($v) {
-	global $wp_version;
 ?>
 
 <div class='wrap'>
-  <h2>Defensio Configuration</h2>
-  <div class="narrow" >
+	<h2>Defensio Configuration</h2>
+	<div class="narrow">
  
 <?php 
-	if($v['hckey']) {
+	if(!is_wp_version_supported()) {
 ?>
-		<h3><label for="new_key">Defensio API Key</label></h3>
-		<p>Your Defensio API Key is hardcoded and cannot be changed here.</p> 
-		<?php defensio_render_key_validity($v) ?>
-		<input type="text" value="<?php echo $v['key']?>" disabled="1" />
-		<form action="plugins.php?page=defensio-config" method="post" >
-		<?php defensio_nonce_field($v['nonce']) ?> 
-		<?php defensio_render_spaminess_threshold_option($v['threshold']); ?>
-		<?php defensio_render_delete_older_than_option($v); ?>
-		<input type="submit" value="Change options" />
-		</form>
-<?php 
-	}
-	else {
-		if(!isset($v['key']) or $v['key'] == null ) { 
-			if($wp_version < 2.1 and !( substr( $wp_version, 'wordpress-mu') )):
-?>
-				<h3>Unsupported version</h3>
-				<p> We are sorry, Defensio can only be installed on WordPress  2.1 or newer. We encourage you to <a href="http://wordpress.org/download/">upgrade</a> to enjoy a spam free blogging experience with Defensio.</p>
+		<h3>Unsupported version</h3>
+		<p> We are sorry, Defensio can only be installed on WordPress 2.1 or newer. We encourage you to <a href="http://wordpress.org/download/">upgrade</a> to enjoy a spam free blogging experience with Defensio.</p>
 <?php
-			else: 
+	} else {
 ?>
-				<h3>Warning</h3>
-				<p>No API Key has been specified, do you want to specify one now?</p>
-        
-				<form action="plugins.php?page=defensio-config" method="post" >
-				  <input type="text" name="new_key" size="32" />
-				  <?php defensio_nonce_field($v['nonce']) ?>
-				  <?php defensio_render_spaminess_threshold_option($v['threshold']); ?>  
-				  <input type="submit" value="Change options" /> 
-				</form>
-<?php 
-			endif;
-		} else { 
-?>
-			<form action="plugins.php?page=defensio-config" method="post" style="margin:auto; width: 400px; ">
-				<?php defensio_nonce_field($v['nonce']) ?>  
-				<p><a href="http://www.defensio.com">Defensio</a>'s blog spam web service aggressively and intelligently prevents comment and trackback spam from hitting your blog. You should quickly notice a dramatic reduction in the amount of spam you have to worry about.</p>
-				<p>When the filter does rarely make a mistake (say, the odd spam message gets through or a rare good comment is marked as spam) we've made it a joy to sort through your comments and set things straight. Not only will the filter learn and improve over time, but it will do so in a personalized way!</p>
-				<p>In order to use our service, you will need a <strong>free</strong> Defensio API key.  Get yours now at <a href="http://www.defensio.com/signup">Defensio.com</a>.</p>
+		<form action="plugins.php?page=defensio-config" method="post" style="margin:auto; width: 400px; ">
+			<?php defensio_nonce_field($v['nonce']) ?>  
+			<p><a href="http://www.defensio.com">Defensio</a>'s blog spam web service aggressively and intelligently prevents comment and trackback spam from hitting your blog. You should quickly notice a dramatic reduction in the amount of spam you have to worry about.</p>
+			<p>When the filter does rarely make a mistake (say, the odd spam message gets through or a rare good comment is marked as spam) we've made it a joy to sort through your comments and set things straight. Not only will the filter learn and improve over time, but it will do so in a personalized way!</p>
+			<p>In order to use our service, you will need a <strong>free</strong> Defensio API key.  Get yours now at <a href="http://www.defensio.com/signup">Defensio.com</a>.</p>
 
-				<h3>Defensio API Key</h3>
-				<?php defensio_render_key_validity($v) ?>                        
+			<h3>Defensio API Key</h3>
+<?php 
+			if(isset($v['key']) and $v['key'] != null ) { 
+				defensio_render_key_validity($v);
+			}
+
+			if($v['hckey']) {
+?>
+				<p>Your Defensio API Key is hardcoded and cannot be changed.</p> 
+<?php
+			} else { 
+?>
 				<input type="text" value="<?php echo $v['key']?>" name="new_key" size="32" />
-				<br /><br />
-				<?php defensio_render_spaminess_threshold_option($v['threshold']); ?>
-     
-				<h3><label>Automatic removal of spam</label></h3>
-				<?php defensio_render_delete_older_than_option($v); ?>
-
-				<input type="submit" value="Change options">
-			</form>
-<?php 
-		} 
-	} 
+				<input type="submit" value="Save settings">
+<?php
+			}
 ?>
+			<br /><br />
+			<?php defensio_nonce_field($v['nonce']) ?>
+			<?php defensio_render_spaminess_threshold_option($v['threshold']); ?>
+		
+			<h3><label>Automatic removal of spam</label></h3>
+			<?php defensio_render_delete_older_than_option($v); ?>
+
+			<input type="submit" value="Save settings">
+		</form>
+<?php
+	}
+
+?>
+
 	</div> 
 </div>
 <?php
@@ -110,7 +96,7 @@ function defensio_render_spaminess_threshold_option($threshold) {
 	endforeach; 
 ?>
 	</select> %</p>
-	<p>Any comments calculated to be above or equal to this "spaminess" threshold will be hidden from view in your quarantine.</p>
+	<p>Any comments calculated to be above or equal to this "spaminess" threshold will be hidden from view in your quarantine when you click.</p>
 <?php 
 }
 

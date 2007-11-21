@@ -4,7 +4,7 @@ Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.1
 Tested up to: 2.3
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
 
@@ -31,8 +31,8 @@ cause problems.  PLEASE deactivate Akismet and other similar plugins before acti
    the upgrade.  Moreover, please delete the old Defensio plugin directory from your server.  Not doing so could lead
    to version conflicts.
    
-2. Copy the 'defensio' folder (unzipped from the file you downloaded) into 'wp-content/plugins/'.  You
-   should now have a file called 'defensio.php' in 'wp-content/plugins/defensio/'.
+2. Copy the 'defensio-anti-spam' folder (unzipped from the file you downloaded) into 'wp-content/plugins/'.  You
+   should now have a file called 'defensio.php' in 'wp-content/plugins/defensio-anti-spam/'.
    
 3. Return to the Plugins tab in your control panel and activate Defensio.
 

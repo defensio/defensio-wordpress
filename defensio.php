@@ -177,7 +177,7 @@ function defensio_configuration() {
 		$defensio_conf['key'] = $key;
 	}
 
-	if (isset ($defensio_conf['key'])) {
+	if (isset($defensio_conf['key'])) {
 		if (defensio_verify_key($defensio_conf['key'])) {
 			$valid = true;
 		} else {
@@ -187,7 +187,7 @@ function defensio_configuration() {
 		$key = $defensio_conf['key'];
 	}
 
-	if (isset ($_POST['new_threshold'])) {
+	if (isset($_POST['new_threshold'])) {
 		$t = (int)$_POST['new_threshold'];
 
 		if (0 <= $t and $t <= 100) {
@@ -898,8 +898,9 @@ function defensio_wp_spam_count($obvious_only) {
 }
 
 function defensio_render_activity_box() {
+	global $plugin_name;
 	$link_base = 'edit-comments.php';
-	$link = clean_url($link_base . '?page=defensio/defensio.php');
+	$link = clean_url($link_base . "?page=$plugin_name/defensio.php");
 
 	$obvious_spam_count = defensio_wp_spam_count(true);
 	$total_spam_count = defensio_wp_spam_count(false);
