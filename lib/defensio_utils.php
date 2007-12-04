@@ -11,10 +11,10 @@ if (defined('DEFENSIO_AJAX')) {
 
 $site_uri = get_option('siteurl');
 
-$file = __FILE__;
+$df_utils_file = __FILE__;
 
 $plugin_name = "defensio-anti-spam";
-$plugin_path = substr(dirname($file), 0, strlen(dirname($file))-3);
+$plugin_path = substr(dirname($df_utils_file ), 0, strlen(dirname($df_utils_file))-3);
 $plugin_uri = get_option('siteurl') . "/wp-content/plugins/$plugin_name/";
 
 function is_mu() {

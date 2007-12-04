@@ -4,7 +4,7 @@ Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.1
 Tested up to: 2.3
-Stable tag: 1.1.3
+Stable tag: 1.2
 
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
 
@@ -23,7 +23,7 @@ cause problems.  PLEASE deactivate Akismet and other similar plugins before acti
 == Installation ==
 
 1. IMPORTANT:  Deactivate Akismet and/or any other anti-spam plugins by going to your Plugins tab in the WordPress 
-   control panel. Simply click "deactivate" to deactivate the desired plugins.  
+   control panel. Simply click "deactivate" to deactivate the desired plugins.
    
    Using multiple spam-filtering solutions will negatively impact Defensio's performance.
    

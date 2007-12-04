@@ -3,7 +3,7 @@
   Plugin Name: Defensio Anti-Spam
   Plugin URI: http://defensio.com/
   Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
-  Version: 1.1
+  Version: 1.2
   Author: Karabunga, Inc
   Author URI: http://karabunga.com/
 */
@@ -25,14 +25,18 @@ $defensio_conf = array(
 	'post_timeout'	=> 10
 );
 
-// If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key.
+/* If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key. */
 // $defensio_conf['key'] = '1234567890';
 
-// Define trusted roles here.  Only change these if you have custom roles (and you know what you're doing).
+/* Define trusted roles here.  Only change these if you have custom roles (and you know what you're doing). */
 $defensio_trusted_roles = array('administrator', 'editor', 'author');
 
- 
- 
+/* acts_as_master forces the Defensio spam result to be retained in the event other anti-spam plugins are installed.
+   Setting it to 'false' could have drastic negative effects on accuracy, so please leave it to true unless you 
+   know what you are doing. In other words, set it to 'false' at your own risk. */ 
+$acts_as_master = true;
+
+
 /*-----------------------------------------------------------------------------------------------------------------------
   DO NOT EDIT PAST THIS
 -----------------------------------------------------------------------------------------------------------------------*/
@@ -459,8 +463,8 @@ function defensio_get_stats() {
 }
 
 
-function defensio_check_comment($com, $incoming = true) {
-	global $wpdb, $defensio_conf, $defensio_meta, $userdata;
+function defensio_check_comment($com, $incoming = true, $retrying = false) {
+	global $wpdb, $defensio_conf, $defensio_meta, $userdata, $acts_as_master;
 
 	$comment = array();
 
@@ -540,21 +544,34 @@ function defensio_check_comment($com, $incoming = true) {
 						}
 					}
 				} else {
-					//Apply wp preferences in case approved value has been changed to spam by another plug-in
-					add_filter('pre_comment_approved', create_function('$a', 'if ($a == \'spam\') return defensio_reapply_wp_comment_preferences(' .var_export($com, true). '); else return $a; '), 99);
+					// Apply wp preferences in case approved value has been changed to spam by another plug-in
+					if ($acts_as_master == true) {
+						add_filter('pre_comment_approved', create_function('$a', 'if ($a == \'spam\') return defensio_reapply_wp_comment_preferences(' .var_export($com, true). '); else return $a; '), 99);
+					}
 				}
 			}
 		} else {
-			// Succesful http request, but Defensio failed.
-			//Put comment in moderation queue.
+		    // Succesful http request, but Defensio failed.
+		    // Retry, once
+		    if(!$retrying){
+			defensio_check_comment($com, $incoming, true) ;
+		    } else {
+			// Put comment in moderation queue.
 			add_filter('pre_comment_approved', create_function('$a', 'return 0;'), 99);
 			add_action('comment_post', 'defensio_save_meta_data');
+		    }
 		}
 	} else {
 		// Unsuccesful POST to the server. Defensio might be down.
-		// Put comment in moderation queue.
-		add_filter('pre_comment_approved', create_function('$a', 'return 0;'), 99);
-		add_action('comment_post', 'defensio_save_meta_data');
+
+		// Retry, once
+		if(!$retrying) {
+		    defensio_check_comment($com, $incoming, true) ;
+	        // No luck... put  comment in moderation queue
+		} else {
+		    add_filter('pre_comment_approved', create_function('$a', 'return 0;'), 99);
+		    add_action('comment_post', 'defensio_save_meta_data');
+		}
 	}
 
 	return $com;
@@ -655,7 +672,7 @@ function defensio_defer_training($id, $new_status = null) {
 	}
 }
 add_action('wp_set_comment_status', 'defensio_defer_training', 10, 2);
-add_action('edit_comment',	'defensio_defer_training', 10, 1);
+add_action('edit_comment', 'defensio_defer_training', 10, 1);
 
 
 function defensio_announce_article($id) {
