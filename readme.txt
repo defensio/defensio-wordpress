@@ -4,7 +4,7 @@ Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.1
 Tested up to: 2.3
-Stable tag: 1.2
+Stable tag: 1.5
 
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
 
@@ -12,8 +12,8 @@ Defensio is an advanced spam filtering web service that learns and adapts to you
 
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
 
-Advanced features such as detailed statistics, charts, RSS feed of our comments (innocent and spam) and counter
-widget are also available.
+Advanced features such as support for OpenID, detailed statistics, charts, RSS feed of our comments (innocent and spam)
+and counter widget are also available.
 
 Defensio aims to be an all-in-one anti-spam solution.  Therefore, using it along with other anti-spam plugins WILL
 cause problems.  PLEASE deactivate Akismet and other similar plugins before activating Defensio.
@@ -51,6 +51,13 @@ cause problems.  PLEASE deactivate Akismet and other similar plugins before acti
    to your blog will be analyzed by Defensio and attributed a "spaminess" value that will help you sort and manage
    your Quarantine.  Under your blog's Comments tab, notice that the quarantine has been re-labelled "Defensio Spam".
    Go there experience the Defensio goodness first-hand.
+
+
+
+== OpenID Support == 
+
+If you wish to enable OpenID support, you must also install another plugin called WP-OpenID.  It can be found at
+[http://wordpress.org/extend/plugins/openid/](http://wordpress.org/extend/plugins/openid/).
 
 
 

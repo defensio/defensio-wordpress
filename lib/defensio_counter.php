@@ -24,7 +24,7 @@ function defensio_render_counter_html($v) { ?>
 	</style>
 
 	<div id='defensio_counter' class="<?php echo $v['align'] ?>">
-		<a id="defensio_counter_link" href="http://defensio.com">
+		<a id="defensio_counter_link" href="http://defensio.com?platform=wp">
 			<div id='defensio_counter_image' class="<?php echo $v['align'] ?>">
 				<span class="<?php echo $v['color'] ?>_counter"><strong><?php echo $v['smoked_spam'] ?></strong> spam comments blocked</span>
 			</div>

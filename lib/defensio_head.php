@@ -57,35 +57,61 @@ function defensio_render_html_head($v) {
   div.defensio_quarantine div.defensio_header img {
     padding-top: 7px;
   }
-  
-  div.defensio_spam div#defensio_spam_sort {
+
+  div.defensio_spam table#defensio_quarantine_options {
+    margin-bottom: 20px;
+    width: 100%;
     clear: both;
-    float: left;
-    width: 50%;
-    margin-bottom: 15px;  
-    height: 30px;
   }
 
-  div.defensio_spam div#defensio_spam_sort label {
-    margin-left: 60px;
+  div.defensio_spam table#defensio_quarantine_options tr {
+    vertical-align: top;
   }
 
-  div.defensio_spam div#defensio_spam_search {
-    float: right;
-    width: 45%;
+  div.defensio_spam table#defensio_quarantine_options tr td {
+    line-height: 1.6em;
+  }
+
+  div.defensio_spam table#defensio_quarantine_options tr td#defensio_quarantine_options_sort {
+    width:60%;
+  }
+
+  div.defensio_spam table#defensio_quarantine_options tr td#defensio_quarantine_options_search {
     text-align: right;
-    margin-bottom: 15px;
-    height: 30px;
+    width: 40%;
   }
-  
+
   div.defensio_spam p#defensio_quarantine_empty {
     margin-bottom: 30px;
     clear: both;
+    text-align:center;
   }
 
   div.defensio_spam ul.defensio_comments {
     list-style: none;
     padding: 0;
+  }
+
+  div.defensio_spam ul.defensio_comments li.defensio_check_all {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+
+  div.defensio_spam ul.defensio_comments ul.defensio_comment_group {
+    list-style: none;
+    padding: 0;
+  }
+
+  div.defensio_spam ul.defensio_comments ul.defensio_comment_group li.defensio_post_title {
+    font-size: 12pt;
+    font-weight: bold;
+    padding: 10px 0 7px 10px;
+    background-color: #f1f1f1;
+  }
+
+  div.defensio_spam ul.defensio_comments ul.defensio_comment_group li.defensio_post_title span {
+    font-size: 8pt;
+    font-weight: normal;
   }
 
   div.defensio_spam ul.defensio_comments li {
@@ -171,7 +197,7 @@ function defensio_render_html_head($v) {
 
   div.defensio_pages {
     clear:both;
-    margin: 10px 0 10px 0;    
+    padding: 10px 0 10px 0;    
   }
   
   .defensio_button{

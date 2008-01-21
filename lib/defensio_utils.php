@@ -9,6 +9,22 @@ if (defined('DEFENSIO_AJAX')) {
 	chdir($old_dir);
 }
 
+// Does not require twice a file, if it has the name 
+// of an already required/included file
+function defensio_require_once_by_name($filename){
+    $included_names = array_map(create_function('$full_name', 'return basename($full_name);'),
+        array_merge(get_included_files(),get_required_files()));
+    // If a file with this name exists return true as require
+    // once does http://ca.php.net/manual/en/function.require-once.php
+    if(in_array(basename($filename), $included_names)){
+        return true;
+    }else{
+        require($filename);
+    }
+}
+
+
+
 $site_uri = get_option('siteurl');
 
 $df_utils_file = __FILE__;
