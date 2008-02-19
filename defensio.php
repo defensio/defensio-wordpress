@@ -3,10 +3,10 @@
   Plugin Name: Defensio Anti-Spam
   Plugin URI: http://defensio.com/
   Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?></code> in your template.
-  Version: 1.5
+  Version: 1.5.1
   Author: Karabunga, Inc
   Author URI: http://karabunga.com/
-*/
+ */
 
 include_once('lib/spyc.php');
 include_once('lib/defensio_configuration.php');
@@ -26,7 +26,7 @@ $defensio_conf = array(
 );
 
 /* If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key. */
-// $defensio_conf['key'] = '1234567890';
+// $defensio_conf['key'] = '1234567890'; 
 
 /* Define trusted roles here.  Only change these if you have custom roles (and you know what you're doing). */
 $defensio_trusted_roles = array('administrator', 'editor', 'author');
@@ -35,7 +35,6 @@ $defensio_trusted_roles = array('administrator', 'editor', 'author');
    Setting it to 'false' could have drastic negative effects on accuracy, so please leave it to true unless you 
    know what you are doing. In other words, set it to 'false' at your own risk. */ 
 $acts_as_master = true;
-
 
 /*-----------------------------------------------------------------------------------------------------------------------
   DO NOT EDIT PAST THIS
@@ -85,7 +84,7 @@ function defensio_create_table() {
 		require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
 		dbDelta($sql);
 		$wpdb->query($sql);
-	}  
+	}
 }
 
 // Init hook
@@ -166,7 +165,6 @@ function defensio_config_page() {
 		add_submenu_page('plugins.php', __('Defensio Configuration'), __('Defensio Configuration'), 'manage_options', 'defensio-config', 'defensio_configuration');
 	}
 }
-
 
 function defensio_configuration() {
 	global $defensio_conf;
@@ -603,9 +601,11 @@ function defensio_get_openid($com){
 
 	if (is_user_openid()){
 		// Add the last identity to defensio params
-		$identity = array_pop($openid->logic->store->get_my_identities());
+		$identity = $openid->logic->store->get_my_identities(null);
+		if(is_array($identity)) {
+			$identity = @array_pop($identity);
+		}
 		$com['openid'] = $identity['url'];
-
 	} elseif($openid->logic->finish_openid_auth()) {
 		$com['openid'] = $openid->logic->finish_openid_auth();
 		// Not really logged in but a valid openid
@@ -1004,9 +1004,8 @@ function defensio_update_stats_cache($stats) {
 function defensio_widget_register() {
 	if (function_exists('register_sidebar_widget')) {
 		function defensio_widget() { 
-			$alignment = get_option('defensio_widget_aligment'); 
+			$alignment = get_option('defensio_counter_alignment'); 
 			$color = get_option('defensio_counter_color');
-	  
 			if (!isset($alignment) or empty($alignment)){ $alignment = 'left'; }
 			if (!isset($color) or empty($color)){ $color = 'dark'; }
 
@@ -1014,7 +1013,7 @@ function defensio_widget_register() {
 		}
 
 		function defensio_widget_control() {
-			global $defensio_counter_colors;
+			global $defensio_widget_tones;
 			if ($_POST['defensio_counter_alignment']) {
 				update_option('defensio_counter_alignment', $_POST['defensio_counter_alignment']);
 			}
@@ -1038,8 +1037,8 @@ function defensio_widget_register() {
 			<br />
 			<label for="defensio_counter_color" style="width: 100px; display: block; float: left;">Color</label>
 			<select name="defensio_counter_color" id="defensio_counter_color">
-				<?php foreach($defensio_counter_colors as $t): ?>
-					<option <?php if ($t == $color ):?> selected="1"<?php endif;?> ><?php echo ucfirst($t) ?></option>
+				<?php foreach($defensio_widget_tones as $t): ?>
+					<option <?php if ($t == $color) :?> selected="1"<?php endif;?> ><?php echo ucfirst($t) ?></option>
 				<?php endforeach; ?>
 			</select>
 <?php

@@ -31,6 +31,6 @@ function defensio_render_counter_html($v) { ?>
 			<div class='defensio_clear'></div>
 		</a>
 	</div>
-<?
+<?php
 }
 ?>
