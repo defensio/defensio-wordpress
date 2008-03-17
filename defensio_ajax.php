@@ -1,15 +1,11 @@
 <?php
 define('DEFENSIO_AJAX', 1);
 require_once('lib/defensio_utils.php');
-
-
 require_once($plugin_path.'../../../wp-config.php');
-
 
 if(file_exists($plugin_path.'../../../wp-admin/admin-functions.php')) { defensio_require_once_by_name($plugin_path.'../../../wp-admin/admin-functions.php'); }
 if(file_exists($plugin_path.'../../../wp-admin/admin-db.php')) { defensio_require_once_by_name($plugin_path.'../../../wp-admin/admin-db.php'); }
 if(file_exists($plugin_path.'../../../wp-admin/admin.php')) { defensio_require_once_by_name($plugin_path.'../../../wp-admin/admin.php'); }
-
 
 if (function_exists('current_user_can') && !current_user_can('moderate_comments')) {
 	die(__('You do not have sufficient permission to moderate comments.'));

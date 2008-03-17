@@ -3,7 +3,7 @@
   Plugin Name: Defensio Anti-Spam
   Plugin URI: http://defensio.com/
   Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?></code> in your template.
-  Version: 1.5.1
+  Version: 1.5.2
   Author: Karabunga, Inc
   Author URI: http://karabunga.com/
  */
@@ -17,12 +17,12 @@ include_once('lib/defensio_moderation.php');
 include_once('lib/defensio_utils.php');
 
 $defensio_conf = array(
-	'server'		=> 'api.defensio.com',
-	'path'			=> 'blog',
-	'api-version'	=> '1.2',
-	'format'		=> 'yaml',
-	'blog'			=> get_option('home'),
-	'post_timeout'	=> 10
+	'server'       => 'api.defensio.com',
+	'path'         => 'blog',
+	'api-version'  => '1.2',
+	'format'       => 'yaml',
+	'blog'         => get_option('home'),
+	'post_timeout' => 10
 );
 
 /* If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key. */
@@ -39,8 +39,6 @@ $acts_as_master = true;
 /*-----------------------------------------------------------------------------------------------------------------------
   DO NOT EDIT PAST THIS
 -----------------------------------------------------------------------------------------------------------------------*/
-
-
 define('DF_SUCCESS', 'success');
 define('DF_FAIL', 'fail');
 
@@ -104,17 +102,17 @@ function defensio_init() {
 add_action('init', 'defensio_init');
 
 
-function defensio_warning() {
-	global $defensio_conf;
-
+function defensio_key_not_set_warning() {
+	global $defensio_conf, $wp_version;
+	
 	if (!isset($defensio_conf['key']) or empty($defensio_conf['key'])) {
-		echo "<div id='defensio-warning' class='updated fade-ff0000'>" .
-		"<p>Defensio is not active. You must enter your Defensio API key for it to work.</p></div>" .
-		"<style type='text/css'>#adminmenu { margin-bottom: 5em; } #defensio-warning { position: absolute; top: 7em; }</style>";
+		defensio_render_warning_styles();
+		echo "<div id='defensio_warning' class='updated fade-ff0000'>" .
+		"<p>Defensio is not active. You must enter your Defensio API key for it to work.</p></div>";
 	}
 	return; 
 }
-add_action('admin_footer', 'defensio_warning');
+add_action('admin_footer', 'defensio_key_not_set_warning');
 
 
 function defensio_unprocessed_warning() {
@@ -147,12 +145,12 @@ function defensio_finalize() {
 
 	// Train comments scheduled to be trained
 	if (!empty($deferred_ham_to_spam)) {
-		defensio_submit_spam(defensio_collect_signatures($deferred_ham_to_spam));		 
+		defensio_submit_spam(defensio_collect_signatures($deferred_ham_to_spam));
 	}
 
 	if (!empty($deferred_spam_to_ham)) {
 		$signatures = '';
-		defensio_submit_ham(defensio_collect_signatures($deferred_spam_to_ham));		
+		defensio_submit_ham(defensio_collect_signatures($deferred_spam_to_ham));
 	}
 }
 add_action('shutdown', 'defensio_finalize');
@@ -163,6 +161,7 @@ function defensio_config_page() {
 
 	if (function_exists('add_submenu_page')) {
 		add_submenu_page('plugins.php', __('Defensio Configuration'), __('Defensio Configuration'), 'manage_options', 'defensio-config', 'defensio_configuration');
+		add_submenu_page('options-general.php', __('Defensio Configuration'), __('Defensio'), 'manage_options', 'defensio-config', 'defensio_configuration');
 	}
 }
 
@@ -517,11 +516,9 @@ function defensio_manage_page() {
 	$spam_count = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->comments LEFT JOIN $wpdb->prefix" . "defensio ON $wpdb->comments" . ".comment_ID = $wpdb->prefix" . "defensio.comment_ID  WHERE comment_approved = 'spam' $spaminess_filter ");
 
 	if (isset($submenu['edit-comments.php'])) {
-		//add_submenu_page('edit-comments.php', 'Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', __FILE__, 'defensio_caught');
 		add_submenu_page('edit-comments.php', 'Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', __FILE__, 'defensio_dispatch');
 	}
 	elseif (function_exists('add_management_page')) {
-		//add_management_page('Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-admin', 'defensio_caught');
 		add_management_page('Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-admin', 'defensio_dispatch');
 	}
 }

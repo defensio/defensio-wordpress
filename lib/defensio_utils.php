@@ -49,4 +49,24 @@ function is_wp_version_supported() {
 		return ($wp_version >= 2.1);
 	}
 }
+
+// Returns the appropriate defensio_warning style based on the current WordPress version
+function defensio_warning_style() {
+	global $wp_version;
+	$old_tag = "#defensio_warning { position: absolute; top: 7em; }";
+	$new_tag = "#defensio_warning { position: absolute; top: 11.5em; }";
+
+	if (is_mu()) {
+		if($wp_version < 1.4)
+			return $old_tag;
+		else
+			return $new_tag;
+	} else {
+	    if($wp_version < 2.5)
+			return $old_tag;
+		else
+			return $new_tag;
+	}
+}
+
 ?>

@@ -1,32 +1,21 @@
 <?php
 function defensio_render_unprocessed_in_moderation($unprocessed) {
-	 global $plugin_uri;
+	global $plugin_uri;
 
-	 // create a comma delimited list of ids
-	 $unprocessedList = "";
-	 for($i=0; $i < count($unprocessed); $i++) {
+	// Sends css styles for warning to browser
+	defensio_render_warning_styles();
+	
+	// create a comma delimited list of ids
+	$unprocessedList = "";
+	for($i=0; $i < count($unprocessed); $i++) {
 		$unprocessedList .= $unprocessed[$i]->id;
 		if($i < count($unprocessed) - 1) {
 		  $unprocessedList .= ", ";
 		}
-	 }
+	}
 ?>
 
-<style type='text/css'>  
-	#adminmenu { margin-bottom: 6em; }
-	#adminmenu.large { margin-bottom: 8.5em; }
-	#defensio-warning { position: absolute; top: 7em; }
-	#defensio_warning_controls_wrap { width:auto; margin-bottom:3px; display:none; }
-	#defensio-warning p.defensio_error { color: red; }
-	#defensio-warning p.defensio_success { color: green; }
-	#defensio_progress_bar { width:300px; height:16px; border:1px solid black; padding:2px; float:left; margin-bottom:10px; }
-	#defensio_progress_bar_value { width:0%; height:16px; background:blue; }
-	#defensio_spinner { padding: 2px 10px 0 10px; float: left; }
-	#defensio_start_processing { margin-left: 10px; clear:both; }
-	#defensio_stop_processing { clear:both; }
-</style>
-
-<div id='defensio-warning' class='updated fade-ff0000'>
+<div id='defensio_warning' class='updated fade-ff0000'>
   <p>
     <strong id="defensio_unprocessed_count"><?php echo count($unprocessed) ?></strong> comments could not processed by Defensio.
     <button id="defensio_start_processing" onclick="">Process Now</button>
@@ -41,7 +30,7 @@ function defensio_render_unprocessed_in_moderation($unprocessed) {
 
 <script type='text/javascript'>
   //<![CDATA[
-  var defensioProcessing = { ids: [<?php echo $unprocessedList ?>], current: 0, stop : false, ham: 0, spam: 0 }
+  var defensioProcessing = { ids: [<?php echo $unprocessedList; ?>], current: 0, stop : false, ham: 0, spam: 0 }
   Event.observe('defensio_start_processing', 'click', defensioStartProcessing);
   Event.observe('defensio_stop_processing',  'click', defensioStopProcessing);
   
@@ -56,7 +45,7 @@ function defensio_render_unprocessed_in_moderation($unprocessed) {
 
     defensioProcessing.stop = false
     defensioProcessModerationAjax(defensioProcessing.current);
-    Event.stop(e)    
+    Event.stop(e)
   }
   
   function defensioStopProcessing(e) {
@@ -67,7 +56,7 @@ function defensio_render_unprocessed_in_moderation($unprocessed) {
   }
 
   function defensioProcessModerationAjax(n){
-    new Ajax.Request('<?php echo $plugin_uri ?>defensio_ajax.php?action=check_comment', { onComplete: defensioProcessModerationAjaxCompleted,
+    new Ajax.Request('<?php echo $plugin_uri; ?>defensio_ajax.php?action=check_comment', { onComplete: defensioProcessModerationAjaxCompleted,
                                                                                           parameters: { id : defensioProcessing.ids[defensioProcessing.current] } })
   } 
 
@@ -108,7 +97,7 @@ function defensio_render_unprocessed_in_moderation($unprocessed) {
 
   function defensioUpdateUI(n){
     $('defensio_progress_bar_value').style.width = ((n/defensioProcessing.ids.length) * 100) + '%'
-    $('defensio_unprocessed_count').innerHTML = defensioProcessing.ids.length - n 
+    $('defensio_unprocessed_count').innerHTML = defensioProcessing.ids.length - n
   }
 
 //]]>
