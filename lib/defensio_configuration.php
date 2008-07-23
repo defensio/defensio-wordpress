@@ -10,7 +10,7 @@ function defensio_render_configuration_html($v) {
 	if(!is_wp_version_supported()) {
 ?>
 		<h3>Unsupported version</h3>
-		<p> We are sorry, Defensio can only be installed on WordPress 2.1 or newer. We encourage you to <a href="http://wordpress.org/download/">upgrade</a> to enjoy a spam free blogging experience with Defensio.</p>
+		<p>We are sorry, Defensio can only be installed on WordPress 2.1 or newer. We encourage you to <a href="http://wordpress.org/download/">upgrade</a> to enjoy a spam free blogging experience with Defensio.</p>
 <?php
 	} else {
 ?>
@@ -33,7 +33,7 @@ function defensio_render_configuration_html($v) {
 			} else { 
 ?>
 				<input type="text" value="<?php echo $v['key']?>" name="new_key" size="32" />
-				<input type="submit" value="Save settings">
+				<input type="submit" class="button" value="Save settings">
 <?php
 			}
 ?>
@@ -44,7 +44,7 @@ function defensio_render_configuration_html($v) {
 			<h3><label>Automatic removal of spam</label></h3>
 			<?php defensio_render_delete_older_than_option($v); ?>
 
-			<input type="submit" value="Save settings">
+			<input type="submit" class="button" value="Save settings">
 		</form>
 <?php
 	}
@@ -62,12 +62,38 @@ function defensio_render_key_validity($v) {
 		<p style="padding: .5em; background-color: #2d2; color: #fff;font-weight: bold;">This key is valid.</p>
 <?php 
 	} else { 
+		if(!isset($v['defensio_post_error_code'])) {
 ?>
-		<p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">The key you entered is invalid.</p>
+    <p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">The key you entered is invalid  .</p>
+
 <?php 
+		} else {
+	$explanation  =  defensio_post_error_code_to_string($v['defensio_post_error_code']);
+
+?>
+		<p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;"> <?php echo ucfirst($explanation) ?></p>
+<?php
+		}
 	}
+
 }
 
+function defensio_post_error_code_to_string($code) {
+	if ($code == NULL) {
+		return '';
+	// Codes greater than 100, http codes, if not 401 or 200 
+        // that is unexpected
+	} elseif ($code >= 100) {
+		 return 'Unexpected HTTP code';
+		
+		// Snoopy returns -100 on timeout, no timeout creating the socket
+	} elseif ($code == -100){
+		return "Timeout when connecting to Defensio server";
+        // The rest should be socket errors
+	} else {
+		return "Couldn't open a external connection, check your configuration or contact your hosting provider.";
+	}
+}
 
 function defensio_render_spaminess_threshold_option($threshold) {
 	global $v;

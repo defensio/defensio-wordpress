@@ -2,7 +2,7 @@
 $defensio_widget_tones = Array('dark', 'light');
 
 function defensio_render_counter_html($v) { ?>
-	<style type="text/css">
+	<style type="text/css" media="screen">
 		#defensio_counter              { width: 100%; margin: 10px 0 10px 0; }
 		#defensio_counter_image        { background:url('<?php echo $v['plugin_uri'] ?>images/defensio-counter-<?php echo $v['color'] ?>.gif') no-repeat top left; border:none; font: 10px 'Trebuchet MS', 'Myriad Pro', sans-serif; overflow: hidden; text-align: left; height: 50px; width: 120px; }
 

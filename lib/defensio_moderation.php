@@ -17,7 +17,7 @@ function defensio_render_unprocessed_in_moderation($unprocessed) {
 
 <div id='defensio_warning' class='updated fade-ff0000'>
   <p>
-    <strong id="defensio_unprocessed_count"><?php echo count($unprocessed) ?></strong> comments could not processed by Defensio.
+    <strong id="defensio_unprocessed_count"><?php echo count($unprocessed) ?></strong> comment(s) could not be processed by Defensio.
     <button id="defensio_start_processing" onclick="">Process Now</button>
   </p>
 
