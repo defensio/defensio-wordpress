@@ -27,7 +27,6 @@ $defensio_conf = array(
 );
 
 
-
 /* If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key. */
 // $defensio_conf['key'] = '1234567890'; 
 
@@ -103,7 +102,7 @@ function defensio_init() {
 	// In case the table is deleted create it again
 	defensio_create_table(); 
 
-        // Are there any unproccessed comments?
+	// Are there any unproccessed comments?
 	$defensio_unprocessed_count= defensio_get_unprocessed_comments();
 	if (count($defensio_unprocessed_count) > 0) {
 		add_action( 'admin_print_scripts', 'defensio_admin_head' );
@@ -603,21 +602,28 @@ function defensio_is_openid_enabled(){
 	return function_exists('is_user_openid');
 }
 
+// Receives an associative array representing
+// a comment before it has been sent defensio,
+// returns the comment with the appropiate 
+// opeind related values.
+//
+// If there is not OpenID enabled or the user 
+// is not logged in using OpenID returns exactly 
+// the same comment.
 function defensio_get_openid($com){
-	global $wpdb,  $openid;
+	global $wpdb;
         
 	if (!defensio_is_openid_enabled())
 		return $com;
 
 	if (is_user_openid()){
-		// Add the last identity to defensio params
-		$identity = $openid->logic->store->get_my_identities(null);
+		$identity = get_user_openids(null);
 		if(is_array($identity)) {
 			$identity = @array_pop($identity);
 		}
 		$com['openid'] = $identity['url'];
-	} elseif($openid->logic->finish_openid_auth()) {
-		$com['openid'] = $openid->logic->finish_openid_auth();
+	} elseif(finish_openid_auth()) {
+		$com['openid'] = finish_openid_auth();
 		// Not really logged in but a valid openid
 		$com['user-logged-in'] = 'true';
 	}
@@ -626,7 +632,7 @@ function defensio_get_openid($com){
 
 function defensio_check_comment($com, $incoming = true, $retrying = false) {
 	global $wpdb, $defensio_conf, $defensio_meta, $userdata, $acts_as_master;
-	
+
 	$comment = array();
 
 	/* If it is an incoming message (not yet in the database).
@@ -645,11 +651,7 @@ function defensio_check_comment($com, $incoming = true, $retrying = false) {
 
 	if ($userdata->ID) {
 		$comment['user-logged-in'] = 'true';
-                
-                // Patch from Peter  (pdoes) beeter way of getting 
-                // user's capabilities
-                $caps = get_usermeta( $userdata->ID, $wpdb->prefix . 'capabilities');
-
+		$caps = get_usermeta( $userdata->ID, $wpdb->prefix . 'capabilities');
 		if (defensio_is_trusted_user($caps)) {
 			$comment['trusted-user'] = 'true';
 		}
@@ -680,7 +682,7 @@ function defensio_check_comment($com, $incoming = true, $retrying = false) {
 	$comment['user_ID'] = $com['user_ID'];
 	$comment = defensio_get_openid($comment);
 	unset( $comment['user_ID']);
-        $err_code = NULL;
+	$err_code = NULL;
 
 	if ($r = defensio_post('audit-comment', $comment, $err_code)) {
 		$ar = Spyc :: YAMLLoad($r);
@@ -913,7 +915,6 @@ function defensio_url_for($action, $key = null) {
 
 function defensio_empty_quarantine() {
 	global $wpdb;
-
 	$wpdb->query("DELETE $wpdb->prefix"."defensio.* FROM  $wpdb->prefix"."defensio NATURAL JOIN $wpdb->comments WHERE comment_approved = 'spam'");
 	$wpdb->query("DELETE FROM $wpdb->comments WHERE comment_approved = 'spam'");
 }
