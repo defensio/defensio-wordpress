@@ -83,7 +83,7 @@ function defensio_post_error_code_to_string($code) {
         // that is unexpected
 	if ($code >= 100) {
 		 return 'Unexpected HTTP code';
-	// Snoopy returns -100 on timeout, no timeout creating the socket
+	// Snoopy returns -100 on http timeout, no timeout creating the socket
 	} elseif ($code == -100){
 		return "Timeout when connecting to Defensio server";
         // The rest should be socket errors

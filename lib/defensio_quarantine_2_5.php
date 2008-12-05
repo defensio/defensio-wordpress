@@ -1,6 +1,5 @@
 <?php
-
-function defensio_render_js_event_manger() {
+function defensio_render_js_event_manager() {
 ?>
   <script>
   $$('.select-all').each(function(elm){elm.observe('click', SelectAll)} );
@@ -34,7 +33,7 @@ function defensio_render_quarantine_html($v) {
 
 	<div class="wrap">
 		<?php defensio_render_header_form($v); ?>
- 		<?php defensio_render_view_switch($v); ?>
+ 		<?php //defensio_render_view_switch($v); ?>
 		<form method="post">
   		<?php defensio_render_navigation_bar($v); ?>
   		<?php 
@@ -59,7 +58,7 @@ function defensio_render_quarantine_html($v) {
 		</form>
 		<br class="clear" /><br class="clear" />
 		<?php defensio_render_stats($v); ?>
-		<?php defensio_render_js_event_manger(); ?>
+		<?php defensio_render_js_event_manager(); ?>
 	</div>
 <?php	}
 
@@ -107,6 +106,7 @@ function defensio_render_header_form($v) {
 
 
 function defensio_render_navigation_bar($v) { ?>
+ 	<?php defensio_render_view_switch($v); ?>
 	<div class="tablenav">
 		<div class="tablenav-pages">
 			<?php defensio_render_page_navigation_links($v); ?>
@@ -170,14 +170,15 @@ function defensio_render_group_footer() {
 function defensio_render_comment($comment) { 
 	$spaminess_class = defensio_class_for_spaminess($comment->spaminess);
 	$li_id = "defensio_comment_" . $comment->id;
-	$checkbox_id = "defensio_comments[" . $comment->id . "]";
+	$checkbox_id = "defensio_comments[]";
 	$body_id = "defensio_body_" . $comment->id;
+        
 ?>
 	
 
 	<li class='<?php echo $spaminess_class; ?>' id='<?php echo $li_id; ?>'>
 		<div class="defensio_comment_checkbox">
-			<input type="checkbox" name="<?php echo $checkbox_id; ?>" id="<?php echo $checkbox_id; ?>" class="defensio_comment_checkbox" />
+			<input type="checkbox" name="<?php echo $checkbox_id; ?>" id="<?php echo $checkbox_id; ?>" class="defensio_comment_checkbox" value="<?php echo $comment->comment_ID; ?>"  />
 		</div>
 		<p class="defensio_comment_header comment-author" style="margin:0">
 			<span class="row-title">

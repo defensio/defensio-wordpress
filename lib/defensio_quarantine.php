@@ -62,9 +62,12 @@ function defensio_date_title_format($date){
 	return strftime("%B %d, %Y", strtotime($date));
 }
 
-// Only include the quarantine view for your version of WP
-if (is_new_gen_wordpress())
-	include_once('defensio_quarantine_new_gen.php');
-else
+if (defensio_wp_version() >= 2.7) {
+	include_once('defensio_quarantine_2_7.php');
+} elseif(defensio_wp_version() >= 2.5) {
+	include_once('defensio_quarantine_2_5.php');
+} else {
 	include_once('defensio_quarantine_old_school.php');
+}
+
 ?>

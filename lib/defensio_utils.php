@@ -44,8 +44,14 @@ function is_wp_version_supported() {
 
 // Returns the appropriate defensio_warning style based on the current WordPress version
 function defensio_warning_style() {
+	global $wp_version;
+
 	$old_style = "#defensio_warning { position: absolute; top: 7em; }";
-	$new_style = "#defensio_warning { position: absolute; top: 11.5em; }";
+	
+	$new_style = "";
+	
+	if((float)$wp_version < 2.7)
+		$new_style = "#defensio_warning { position: absolute; top: 11.5em; }";
 
 	if (!is_new_gen_wordpress())
 		return $old_style;
@@ -60,6 +66,21 @@ function is_new_gen_wordpress() {
 		return $wp_version >= 1.5;
 	else
 		return $wp_version >= 2.5;
+}
+
+// Replaces multiple checks for MU and standard WP.
+// It will return 2.x versions for any wp version, since
+// 2.3 and 1.3Mu share code they will be seen as 2.3 and so on
+function defensio_wp_version(){
+	global $wp_version;
+	$version = (float)$wp_version;
+
+	if(is_mu() and $version < 1.5){
+		return $version + 1;
+	} else {
+		return $version;
+	}
+
 }
 
 ?>
