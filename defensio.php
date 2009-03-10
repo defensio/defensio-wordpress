@@ -3,7 +3,7 @@
   Plugin Name: Defensio Anti-Spam
   Plugin URI: http://defensio.com/
   Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors as well to those of your readers and commenters.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?></code> in your template.
-  Version: 2.0
+  Version: 2.0.1
   Author: Karabunga, Inc
   Author URI: http://karabunga.com/
 */
@@ -106,20 +106,22 @@ function defensio_init() {
 		add_action('admin_notices', 'defensio_unprocessed_warning');
 	}
 
-	// Enqueue styles for 2.6+
-	if (defensio_wp_version() >= 2.6) {
-		if(defensio_wp_version() >= 2.7) {
-			wp_enqueue_style('defensio','/wp-content/plugins/defensio-anti-spam/styles/defensio_2.7.css' );
-		} else {
-			wp_enqueue_style('defensio' ,'/wp-content/plugins/defensio-anti-spam/styles/defensio.css' );
-		}
-	} else {
+	// Enqueue styles
+	if (defensio_wp_version() < 2.6) {
 		// for older versions
 		add_action('admin_head', create_function('$a', 'echo "<link media=\"all\" type=\"text/css\" href=\"'. get_option('siteurl')  .'/wp-content/plugins/defensio-anti-spam/styles/defensio.css\" rel=\"stylesheet\"> </link>" ;'));
 	}
 }
 add_action('init', 'defensio_init');
 
+function defensio_styles() {
+	if(defensio_wp_version() >= 2.7) {
+		wp_enqueue_style('defensio', '/wp-content/plugins/defensio-anti-spam/styles/defensio_2.7.css' );
+	} else {
+		wp_enqueue_style('defensio', '/wp-content/plugins/defensio-anti-spam/styles/defensio.css' );
+	}
+}
+add_action('admin_print_styles', 'defensio_styles');
 
 function defensio_key_not_set_warning() {
 	global $defensio_conf;
@@ -278,11 +280,13 @@ function defensio_generate_spaminess_filter($reverse = false, $ignore_option = f
 		   for this problem.  new users have their spaminess properly stored as numeric.
 		   this hack will, not affect them, however. */
 		$t = $t - 0.001;
-
+		
+		// MySQL does not like "," as decimal separator using sprintf to avoid that in 
+		// some locales.
 		if ($reverse) {
-			$spaminess_filter = " AND IFNULL(spaminess, 1) >= $t";
+			$spaminess_filter = " AND IFNULL(spaminess, 1) >= ". sprintf('%F', $t);
 		} else {
-			$spaminess_filter = " AND IFNULL(spaminess, 1) < $t";
+			$spaminess_filter = " AND IFNULL(spaminess, 1) < " . sprintf('%F', $t);
 		}
 	}
 
@@ -526,7 +530,8 @@ function defensio_manage_page() {
 	$page = NULL;
 	
 	if (defensio_wp_version() >= 2.7 ){
-		$page = add_comments_page('Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
+		$count_html =  "<span id=\"awaiting-mod\" class=\"count-1\"><span class=\"pending-count\">$spam_count</span> </span>";
+		$page = add_comments_page('Defensio Spam', "Defensio Spam $count_html", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
 
 	} elseif (isset($submenu['edit-comments.php'])   ) {
 		$page = add_submenu_page('edit-comments.php', 'Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
@@ -644,7 +649,7 @@ function defensio_get_openid($com){
 			$identity = @array_pop($identity);
 		}
 		$com['openid'] = $identity;
-	} elseif(finish_openid_auth()) {
+	} elseif(function_exists('finish_openid_auth')) {
 		$com['openid'] = finish_openid_auth();
 		// Not really logged in but a valid openid
 		$com['user-logged-in'] = 'true';
