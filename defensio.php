@@ -3,7 +3,7 @@
   Plugin Name: Defensio Anti-Spam
   Plugin URI: http://defensio.com/
   Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors as well to those of your readers and commenters.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?></code> in your template.
-  Version: 2.0.1
+  Version: 2.0.2
   Author: Karabunga, Inc
   Author URI: http://karabunga.com/
 */
@@ -522,16 +522,18 @@ function defensio_dispatch(){
 	defensio_render_quarantine_html($render_params);
 }
 
+
 function defensio_manage_page() {
 	global $wpdb, $submenu, $menu, $defensio_conf;
 
 	$spaminess_filter = defensio_generate_spaminess_filter();
-	$spam_count = $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->comments LEFT JOIN $wpdb->prefix" . "defensio ON $wpdb->comments" . ".comment_ID = $wpdb->prefix" . "defensio.comment_ID  WHERE comment_approved = 'spam' $spaminess_filter ");
+	$spam_count = defensio_unhidden_spam_count();
+        
+        
 	$page = NULL;
 	
 	if (defensio_wp_version() >= 2.7 ){
-		$count_html =  "<span id=\"awaiting-mod\" class=\"count-1\"><span class=\"pending-count\">$spam_count</span> </span>";
-		$page = add_comments_page('Defensio Spam', "Defensio Spam $count_html", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
+		$page = add_comments_page('Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
 
 	} elseif (isset($submenu['edit-comments.php'])   ) {
 		$page = add_submenu_page('edit-comments.php', 'Defensio Spam', "Defensio Spam ($spam_count)", 'moderate_comments', 'defensio-quarantine', 'defensio_dispatch');
@@ -1126,6 +1128,16 @@ function defensio_obvious_spam_count() {
 	return $wpdb->get_var("SELECT count(*) FROM $wpdb->comments LEFT JOIN $wpdb->prefix"."defensio ON $wpdb->comments" . ".comment_ID = $wpdb->prefix" . "defensio.comment_ID WHERE comment_approved = 'spam' ". defensio_generate_spaminess_filter(true, true) . ";");
 }
 
+function defensio_unhidden_spam_count(){
+        $spam_count = 0;
+        if(get_option(defensio_user_unique_option_key('hide_more_than_threshold')) == 1){
+		$spam_count = defensio_spam_count() - defensio_obvious_spam_count();
+	} else {
+		$spam_count = defensio_spam_count();
+	}
+	return $spam_count;
+}
+
 function defensio_render_activity_box() {
 	$link_base = 'edit-comments.php';
 	$link = clean_url($link_base . "?page=defensio-quarantine.php");
@@ -1209,7 +1221,7 @@ if (defensio_wp_version() >= 2.7 ){
 		foreach($status_links as $index => $link){
 
 			if(preg_match('/Spam/', $link)){
-				$status_links[$index] = '<a href="edit-comments.php?page=defensio-quarantine">Defensio Spam ('. defensio_spam_count() . ") </a> ";
+				$status_links[$index] = '<a href="edit-comments.php?page=defensio-quarantine">Defensio Spam ('. defensio_unhidden_spam_count() . ") </a> ";
 				break;
 			}	
 		}
