@@ -1,4 +1,6 @@
 <?php
+global $defensio_plugin_dir = "defensio-anti-spam"
+
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioWP.php');
 require_once('lib/DefensioDB.php');
@@ -6,14 +8,14 @@ require_once(dirname( __FILE__) . '/../../../wp-load.php');
 require_once(ABSPATH . '/wp-includes/wp-db.php');
 require_once(ABSPATH . '/wp-includes/comment.php');
 require_once(ABSPATH . '/wp-includes/plugin.php');
-require_once(WP_PLUGIN_DIR . '/defensio-anti-spam/defensio_config.php');
+require_once(WP_PLUGIN_DIR . '/$defensio_plugin_dir/config.php');
 
 global $wpdb, $defensio_conf;
 
 defensio_set_key();
 
 if( !isset($_GET['id']) || ($_GET['id'] != md5($defensio_conf['key'])) )
-    die('Bad id');
+    die('Could not authenticate. Bye bye!');
 
 try{
 
@@ -23,7 +25,7 @@ try{
 
 } catch (DefensioEmptyCallbackData $ex){
 
-    die('Nothing useful to do wihtout data!.. and btw you are not suposed to be here');
+    die('I need some data to be useful!');
 }
 
 ?>

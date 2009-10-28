@@ -66,12 +66,12 @@ function defensio_render_configuration_html($v) {
 function defensio_render_key_validity($v) {
 	if($v['valid']) { 
 ?>
-		<p style="padding: .5em; background-color: #2d2; color: #fff;font-weight: bold;">This key is valid.</p>
+		<p style="padding: .5em; background-color: #2d2; color: #fff;font-weight: bold;">Your API key is valid.</p>
 <?php 
 	} else { 
 		if(!isset($v['defensio_post_error_code'])) {
 ?>
-    <p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">The key you entered is invalid  .</p>
+    <p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">Could not validate your API key.</p>
 
 <?php 
 		} else {
@@ -86,16 +86,13 @@ function defensio_render_key_validity($v) {
 }
 
 function defensio_post_error_code_to_string($code) {
-	// Codes greater than 100, http codes, if not 401 or 200 
-        // that is unexpected
 	if ($code >= 100) {
-		 return 'Unexpected HTTP code';
-	// Snoopy returns -100 on http timeout, no timeout creating the socket
-	} elseif ($code == -100){
-		return "Timeout when connecting to Defensio server";
-        // The rest should be socket errors
+		 return 'Unexpected HTTP code ($code).';
+	} elseif ($code == -100) {
+		return "Timeout when connecting to Defensio's API server.";
+	// The rest should be socket errors
 	} else {
-		return "Couldn't open a external connection, check your configuration or contact your hosting provider.";
+		return "Could not open a connection to Defensio. Please check your configuration or contact your hosting provider to determine if outbound HTTP connections are supported.";
 	}
 }
 

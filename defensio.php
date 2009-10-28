@@ -3,27 +3,22 @@
  * Plugin Name: Defensio Anti-Spam
  * Plugin URI: http://defensio.com/
  * Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors as well to those of your readers and commenters.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?></code> in your template.
- * Version: 2.0.3
- * Author: Karabunga, Inc
- * Author URI: http://karabunga.com/com
+ * Version: 2.5
+ * Author: Websense, Inc.
+ * Author URI: http://defensio.com
  *
 */
-
+global $defensio_plugin_dir = // TODO: Get plugin dir "ie: defensio-anti-spam" from Wordpress' API. Do NOT hardcode.
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioDB.php');
 require_once('lib/DefensioWP.php');
 require_once('lib/defensio_utils.php');
-require_once('defensio_config.php');
-// Mostly page templates
-require_once('lib/defensio_configuration.php');
-require_once('lib/defensio_quarantine.php');
-require_once('lib/defensio_head.php');
-require_once('lib/defensio_counter.php');
+require_once('config.php');
+require_once('lib/views/defensio_configuration.php');
+require_once('lib/views/defensio_quarantine.php');
+require_once('lib/views/defensio_head.php');
+require_once('lib/views/defensio_counter.php');
 global $defensio_conf;
-
-/*-----------------------------------------------------------------------------------------------------------------------
-  DO NOT EDIT PAST THIS
-  -----------------------------------------------------------------------------------------------------------------------*/
 
 if (!function_exists('wp_nonce_field') ) {
     function defensio_nonce_field($action = -1) { return; }
@@ -37,7 +32,7 @@ if (!function_exists('wp_nonce_field') ) {
 $defensio_retraining  = false;
 
 /* 
- * Installation function, creates defensio table and populates default options
+ * Installation function, creates the Defensio table and populate it with default options
  */
 function defensio_install() {
     defensio_create_table();
@@ -49,7 +44,7 @@ function defensio_install() {
 register_activation_hook(basename(__FILE__), 'defensio_install');
 
 /*
- * Create defensio's MySQL tabe structure
+ * Creates Defensio table in MySQL
  */
 function defensio_create_table() {
     $version = get_option('defensio_db_version');
@@ -59,8 +54,8 @@ function defensio_create_table() {
 }
 
 /* 
- * Init hook, create a Defensio object to access defensio's REST service recreate the table if it is not in  the 
- * database for some reason 
+ * Init hook. Instantiate DefensioDB and DefensioWP to access Defensio's REST service, and make sure the wp_defensio table 
+ * is in the database. If not, create it.
  */
 function defensio_init() {
     global $defensio_conf, $defensio_db, $defensio_manager;
@@ -76,7 +71,7 @@ add_action('init', 'defensio_init');
 
 
 function defensio_styles() {
-    wp_enqueue_style('defensio', '/wp-content/plugins/defensio-anti-spam/styles/defensio_2.7.css' );
+    wp_enqueue_style('defensio', '/wp-content/plugins/$defensio_plugin_dir/styles/defensio.css' );
 }
 add_action('admin_print_styles', 'defensio_styles');
 
@@ -391,8 +386,8 @@ add_action('admin_menu', 'defensio_manage_page');
 
 function defensio_admin_head(){
     wp_enqueue_script('prototype');
-    wp_enqueue_script('fat',  '/wp-content/plugins/defensio-anti-spam/scripts/fat.js');
-    wp_enqueue_script('defensio', '/wp-content/plugins/defensio-anti-spam/scripts/defensio.js');
+    wp_enqueue_script('fat',  '/wp-content/plugins/$defensio_plugin_dir/scripts/fat.js');
+    wp_enqueue_script('defensio', '/wp-content/plugins/$defensio_plugin_dir/scripts/defensio.js');
     wp_enqueue_script('admin-comments');
     wp_enqueue_script('admin-forms');
 }
@@ -653,9 +648,9 @@ function defensio_user_unique_option_key( $opt_name = null ){
     }
 }
 
-/* In WP 2.7 there is a built-in  SPAM quarantine. This filter function
+/* In WP 2.7+, there is a built-in spam quarantine. This filter function
  * will take the array of status links in wp-admin/comments and replace the
- * link to spam type by a link to defensio's quarantine
+ * link to spam type by a link to Defensio's quarantine
  */
 function defensio_replace_default_quarantine_link($status_links){
     global $defensio_db;
