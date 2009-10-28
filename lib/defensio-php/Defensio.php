@@ -17,7 +17,7 @@ class Defensio
 {
 
     // Misc
-    const API_HOST    = 'localhost:3000';
+    const API_HOST    = 'api.defensio.com';
     const USER_AGENT  = 'Defensio-PHP 2.0';
     const CLIENT_ID   = 'Defensio-PHP | 2.0 | Camilo Lopez | clopez@websense.com';
     const FORMAT      = 'xml';
