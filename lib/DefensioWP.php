@@ -103,7 +103,7 @@ class DefensioWP
                      * the HTTP status code is 404 something has gone terribly wrong and a signature was lost at some point; 
                      * update as unprocessed to start over
                      *  */
-                    if ( $ex->http_code == 404 ) {
+                    if ( $ex->http_status == 404 ) {
                         $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => 'unprocessed'));
                     }
                     continue; 
