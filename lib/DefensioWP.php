@@ -229,14 +229,14 @@ class DefensioWP
         if($approved_value == 1)
             return 1;
         else
-            return 'DEFENSIO_PENDING_STATUS';
+            return self::DEFENSIO_PENDING_STATUS;
     }
 
     /*
-     * Will apply dictionary filter to $input, by doing a POST call to /dictionary-filter and return it's result
+     * Will apply profanity filter to $input, by doing a POST call to profanity-filter and return it's result
      * @param string $input
      */
-    private function dictionaryFilter($input)
+    private function filterProfanity($input)
     {
         $result = FALSE;
 
@@ -244,7 +244,7 @@ class DefensioWP
             return $result;
 
         try {
-            $response = $this->defensio_client->postDictionaryFilter(array('content' => $input));
+            $response = $this->defensio_client->postProfanityFilter(array('content' => $input));
             $result = $response[1]->filtered->content;
         } catch (DefensioError $ex) {
             $result = FALSE;
@@ -278,12 +278,12 @@ class DefensioWP
                 }
 
             } else {
-                if($comment->comment_approved == 'DEFENSIO_PENDING_STATUS' || $comment->comment_approved == 'spam')
+                if($comment->comment_approved == self::DEFENSIO_PENDING_STATUS || $comment->comment_approved == 'spam')
                     $approval_value = '0';
                 elseif($comment->comment_approved == '1')
                     $approval_value = '1';
 
-                $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'dictionary-match'} == 'true';
+                $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
                 $this->doApply($comment, $result, $approval_value, $dictionary_filter);
             }
 
@@ -293,22 +293,21 @@ class DefensioWP
     private function doApply($comment, $result, $approved_value, $dictionary_filter=FALSE )
     {
 
-        $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => self::OK, 
-                                                                          'spaminess' => (float)$result->spaminess,
-                                                                          'classification' => $result->classification,
-                                                                          'dictionary_match' => ($result->{'dictionary-match'} == 'true') ? 1 : 0
-                                                                      ));
+        $this->defensio_db->updateDefensioRow($comment->comment_ID, array( 'status'           => self::OK, 
+                                                                           'spaminess'        => (float)$result->spaminess,
+                                                                           'classification'   => $result->classification,
+                                                                           'dictionary_match' => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
 
         if($dictionary_filter){
-            $new_content = $this->dictionaryFilter($comment->comment_content);
+            $new_content = $this->filterProfanity($comment->comment_content);
 
             if($new_content)
                 $comment->comment_content = $new_content;
         }
 
         wp_update_comment(array('comment_approved' => $approved_value, 
-                                'comment_ID' => $comment->comment_ID, 
-                                'comment_content' => $comment->comment_content)); 
+                                'comment_ID'       => $comment->comment_ID, 
+                                'comment_content'  => $comment->comment_content)); 
 
         if($approved_value == '0' )
             wp_notify_moderator($comment->comment_ID); 
@@ -370,7 +369,7 @@ class DefensioWP
                 /* Suppress the exception on 404 documents are not warrantied to be there after some time if this is 
                  * an old comment 404 makes sense, re-throw it in any other HTTP code
                  */
-                if($ex->http_code != 404)
+                if($ex->http_status != 404)
                     throw $ex;
             }
 
@@ -386,7 +385,7 @@ class DefensioWP
 
                 if(get_option('defensio_filter_profanity') && $row[0]->dictionary_match){
                     $comment = get_comment($row[0]->comment_ID);
-                    $filtered_content = $this->dictionaryFilter($comment->comment_content);
+                    $filtered_content = $this->filterProfanity($comment->comment_content);
 
                     if($filtered_content){
                         $dictionary_match = 0; // Should not match anymore, avoid further calls to $defensio_client->postDictionaryFilter
