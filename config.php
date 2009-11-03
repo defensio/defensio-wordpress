@@ -1,6 +1,6 @@
 <?php
 $defensio_conf = array(
-    'async_callback_url' => WP_PLUGIN_URL . '/$defensio_plugin_dir/callback.php'
+    'async_callback_url' =>  "$defensio_plugin_url/callback.php"
 );
 
 /* If you want to hard code the key for some reason, uncomment the following line and replace 1234567890 with your key. */
