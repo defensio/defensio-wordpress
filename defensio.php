@@ -7,8 +7,12 @@
  * Author: Websense, Inc.
  * Author URI: http://defensio.com
  *
-*/
-global $defensio_plugin_dir = // TODO: Get plugin dir "ie: defensio-anti-spam" from Wordpress' API. Do NOT hardcode.
+ */
+
+global $defensio_plugin_dir, $defensio_plugin_url, $defensio_conf;
+$defensio_plugin_dir = WP_PLUGIN_DIR .'/'. basename(dirname(__FILE__));
+$defensio_plugin_url = WP_PLUGIN_URL .'/'. basename(dirname(__FILE__));
+
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioDB.php');
 require_once('lib/DefensioWP.php');
@@ -18,7 +22,6 @@ require_once('lib/views/defensio_configuration.php');
 require_once('lib/views/defensio_quarantine.php');
 require_once('lib/views/defensio_head.php');
 require_once('lib/views/defensio_counter.php');
-global $defensio_conf;
 
 if (!function_exists('wp_nonce_field') ) {
     function defensio_nonce_field($action = -1) { return; }
@@ -71,7 +74,10 @@ add_action('init', 'defensio_init');
 
 
 function defensio_styles() {
-    wp_enqueue_style('defensio', '/wp-content/plugins/$defensio_plugin_dir/styles/defensio.css' );
+    global $defensio_plugin_url;
+
+    wp_register_style('defensio', "$defensio_plugin_url/styles/defensio.css");
+    wp_enqueue_style('defensio');
 }
 add_action('admin_print_styles', 'defensio_styles');
 
@@ -385,9 +391,10 @@ function defensio_manage_page() {
 add_action('admin_menu', 'defensio_manage_page');
 
 function defensio_admin_head(){
+    global $defensio_plugin_url;
     wp_enqueue_script('prototype');
-    wp_enqueue_script('fat',  '/wp-content/plugins/$defensio_plugin_dir/scripts/fat.js');
-    wp_enqueue_script('defensio', '/wp-content/plugins/$defensio_plugin_dir/scripts/defensio.js');
+    wp_enqueue_script('fat',  "$defensio_plugin_url/scripts/fat.js");
+    wp_enqueue_script('defensio', "$defensio_plugin_url/scripts/defensio.js");
     wp_enqueue_script('admin-comments');
     wp_enqueue_script('admin-forms');
 }
@@ -668,12 +675,11 @@ add_filter('comment_status_links', 'defensio_replace_default_quarantine_link', 9
 
 // Redirect default quarantine to defensio's. There is no useful hook to change the link in dashboard.php... just redirect 
 function defensio_redirect_to_qurantine($a){
-    if($_REQUEST['comment_status'] == 'spam')
-        wp_redirect("edit-comments.php?page=defensio-quarantine");
+    if($_REQUEST['comment_status'] == 'spam')urlwp_redirect("edit-comments.php?page=defensio-quarantine");
 }
 add_action('load-edit-comments.php', 'defensio_redirect_to_qurantine');
 
-// Scheduling wp-cront task to take care of unprocessed and peding comments if callback was not received
+// Scheduling wp-cront task to take care of unprocessed and pending comments if callback was not received sdasd 
 
 /* Add a custom wp_cron reccurence */
 function defensio_custom_reccurence()
@@ -704,7 +710,7 @@ if ( !function_exists('wp_notify_postauthor') ):
         $current_user = wp_get_current_user();
 
         if ( $comment->user_id == $post->post_author ) return false; // The author moderated a comment on his own post
-        if ( $comment->comment_approved == 'defensio_pending' ) return false; // Do nothing unless defensio has cleared this comment
+        if ( $comment->comment_approved == DefensioWP::DEFENSIO_PENDING_STATUS ) return false; // Do nothing unless defensio has cleared this comment
 
         if ('' == $user->user_email) return false; // If there's no email to send the comment to
 
@@ -791,11 +797,11 @@ function defensio_add_defensio_pending($comments)
     $comment_author_url = esc_url($commenter['comment_author_url']);
 
     if ( $user_ID) {
-        $comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND (comment_approved = '1' OR ( user_id = %d AND ( comment_approved = '0' OR 'comment_approved' = 'defensio_pending') ) )  ORDER BY comment_date_gmt", $post->ID, $user_ID));
+        $comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND (comment_approved = '1' OR ( user_id = %d AND ( comment_approved = '0' OR 'comment_approved' = '" . DefensioWP::DEFENSIO_PENDING_STATUS . "' ) ) )  ORDER BY comment_date_gmt", $post->ID, $user_ID));
     } else if ( empty($comment_author) ) {
         $comments = get_comments( array('post_id' => $post->ID, 'status' => 'approve', 'order' => 'ASC') );
     } else {
-        $comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND ( comment_approved = '1' OR ( comment_author = %s AND comment_author_email = %s AND ( comment_approved = '0' OR comment_approved = 'defensio_pending' ))) ORDER BY comment_date_gmt", $post->ID, wp_specialchars_decode($comment_author,ENT_QUOTES), $comment_author_email));
+        $comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM $wpdb->comments WHERE comment_post_ID = %d AND ( comment_approved = '1' OR ( comment_author = %s AND comment_author_email = %s AND ( comment_approved = '0' OR comment_approved = '". DefensioWP::DEFENSIO_PENDING_STATUS ."' ))) ORDER BY comment_date_gmt", $post->ID, wp_specialchars_decode($comment_author,ENT_QUOTES), $comment_author_email));
     }
     return $comments;
 }

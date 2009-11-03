@@ -17,7 +17,7 @@ class Defensio
 {
 
     // Misc
-    const API_HOST    = 'api.defensio.com';
+    const API_HOST    = 'localhost:3000';
     const USER_AGENT  = 'Defensio-PHP 2.0';
     const CLIENT_ID   = 'Defensio-PHP | 2.0 | Camilo Lopez | clopez@websense.com';
     const FORMAT      = 'xml';
@@ -39,7 +39,7 @@ class Defensio
           'document_put_get'       => "/2.0/users/$this->api_key/documents/{{signature}}." . self::FORMAT,
           'basic_stats_get'        => "/2.0/users/$this->api_key/basic-stats." . self::FORMAT,
           'extended_stats_get'     => "/2.0/users/$this->api_key/extended-stats." . self::FORMAT,
-          'dictionary_filter_post' => "/2.0/users/$this->api_key/dictionary-filter." . self::FORMAT);
+          'profanity_filter_post' => "/2.0/users/$this->api_key/profanity-filter." . self::FORMAT);
     }
 
     /* Api key getter*/
@@ -127,9 +127,9 @@ class Defensio
      * @param array $params The fields to be filtered 
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
      */
-    public function postDictionaryFilter($data)
+    public function postProfanityFilter($data)
     {
-        $result = $this->rest_client->post($this->defensio_paths['dictionary_filter_post'], $data);
+        $result = $this->rest_client->post($this->defensio_paths['profanity_filter_post'], $data);
         return self::parseResult($result, FALSE, array(200));
     }
 

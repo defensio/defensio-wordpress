@@ -1,6 +1,4 @@
 <?php
-global $defensio_plugin_dir = "defensio-anti-spam"
-
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioWP.php');
 require_once('lib/DefensioDB.php');
@@ -8,7 +6,7 @@ require_once(dirname( __FILE__) . '/../../../wp-load.php');
 require_once(ABSPATH . '/wp-includes/wp-db.php');
 require_once(ABSPATH . '/wp-includes/comment.php');
 require_once(ABSPATH . '/wp-includes/plugin.php');
-require_once(WP_PLUGIN_DIR . '/$defensio_plugin_dir/config.php');
+require_once('config.php');
 
 global $wpdb, $defensio_conf;
 

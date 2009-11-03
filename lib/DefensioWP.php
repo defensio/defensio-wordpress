@@ -18,7 +18,11 @@ class DefensioWP
     private $trusted_roles;
     private $authenticated;
 
-    const PLATFORM_NAME = 'WP_Defensio';
+    const PLATFORM_NAME = 'WordPress';
+    const UNPROCESSED   = 'unprocessed';
+    const PENDING       = 'pending';
+    const OK            = 'ok';
+    const DEFENSIO_PENDING_STATUS = 'defensio_pending';
 
     /*
      * @param string $api_key A Defensio API key
@@ -86,10 +90,10 @@ class DefensioWP
     public function getPendingResults()
     {
 
-        $pending = $this->defensio_db->getPendingComments();
+        $pending_coments = $this->defensio_db->getPendingComments();
 
-        if ( is_array($pending) ) {
-            foreach( $pending as $comment ) {
+        if ( is_array($pending_coments) ) {
+            foreach( $pending_coments as $comment ) {
                 $result = NULL;
 
                 try {
@@ -104,7 +108,7 @@ class DefensioWP
                      * update as unprocessed to start over
                      *  */
                     if ( $ex->http_status == 404 ) {
-                        $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => 'unprocessed'));
+                        $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => self::UNPROCESSED));
                     }
                     continue; 
                 }
@@ -179,31 +183,31 @@ class DefensioWP
             $response = $this->defensio_client->postDocument($document);
             $result = $response[1];
 
-            if ( $result->status == 'pending' ){
+            if ( $result->status == self::PENDING){
                 $data['signature'] = $result->signature;
                 $data['status']    = $result->status;
 
             } else {
 
                 if($retrying)
-                    $data['status'] = 'unprocessed' ;
+                    $data['status'] = self::UNPROCESSED;
                 else
                     return $this->postComment($id, TRUE);
             }
 
         } catch( DefensioError $ex) {
                 if($retrying)
-                    $data['status'] = 'unprocessed' ;
+                    $data['status'] = self::UNPROCESSED;
                 else
                     return $this->postComment($id, TRUE);
         }
 
         if ($comment->comment_approved != 1){
 
-            if($data['status'] == 'unprocessed')
+            if($data['status'] == self::UNPROCESSED)
                 wp_update_comment(array('comment_approved' => 0, 'comment_ID' => $id));
             else
-                wp_update_comment(array('comment_approved' => 'defensio_pending' , 'comment_ID' => $id));
+                wp_update_comment(array('comment_approved' => self::DEFENSIO_PENDING_STATUS, 'comment_ID' => $id));
 
         }
 
@@ -225,7 +229,7 @@ class DefensioWP
         if($approved_value == 1)
             return 1;
         else
-            return 'defensio_pending';
+            return 'DEFENSIO_PENDING_STATUS';
     }
 
     /*
@@ -274,7 +278,7 @@ class DefensioWP
                 }
 
             } else {
-                if($comment->comment_approved == 'defensio_pending' || $comment->comment_approved == 'spam')
+                if($comment->comment_approved == 'DEFENSIO_PENDING_STATUS' || $comment->comment_approved == 'spam')
                     $approval_value = '0';
                 elseif($comment->comment_approved == '1')
                     $approval_value = '1';
@@ -289,7 +293,7 @@ class DefensioWP
     private function doApply($comment, $result, $approved_value, $dictionary_filter=FALSE )
     {
 
-        $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => 'ok', 
+        $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => self::OK, 
                                                                           'spaminess' => (float)$result->spaminess,
                                                                           'classification' => $result->classification,
                                                                           'dictionary_match' => ($result->{'dictionary-match'} == 'true') ? 1 : 0
@@ -374,7 +378,7 @@ class DefensioWP
 
             switch ($new_value){
             case 'spam':
-                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 1, 'status' => 'ok'));
+                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 1, 'status' => self::OK));
                 break;
             case 'ham':
 
@@ -390,7 +394,7 @@ class DefensioWP
                     }
                 }
 
-                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => 'ok', 'dictionary_match' => $dictionary_match));
+                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 'dictionary_match' => $dictionary_match));
                 break;
             default:
                 // Do nothing for any other values
