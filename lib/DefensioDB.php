@@ -73,27 +73,32 @@ class DefensioDB
         $this->table_version = DefensioDB::TABLE_VERSION;
     }
 
-    /* @return array All the comments with status unprocessed */
-    public function getUnprocessedComments()
+    /* 
+     * @param integer $limit 
+     * @return array All the comments with status unprocessed
+     */
+    public function getUnprocessedComments($limit=20)
     {
-        return $this->getCommentsByStatus('unprocessed');
+        return $this->getCommentsByStatus('unprocessed', $limit);
     }
 
     /* @return array All the comments with status pending */
-    public function getPendingComments()
+    public function getPendingComments($limit=20)
     {
-        return $this->getCommentsByStatus('pending');
+        return $this->getCommentsByStatus('pending', $limit);
     }
 
     /* @param string Get all the comments with status $status, status can be ok, peding and unprocessed
      * @return array All the comments with status defined by $status */
-    public function getCommentsByStatus($status)
+    public function getCommentsByStatus($status, $limit = NULL)
     {
         global $wpdb;
+
+        $limit_clause = is_null($limit) ? " LIMIT $limit " : "";
         $out = array();
 
         if ( in_array($status, array('ok', 'pending', 'unprocessed')) )
-            $out = $wpdb->get_results("SELECT $wpdb->comments.comment_ID, signature FROM $wpdb->comments  LEFT JOIN $this->table_name" . " ON $wpdb->comments" . ".comment_ID = $this->table_name" . ".comment_ID  WHERE status = '$status'");
+            $out = $wpdb->get_results("SELECT $wpdb->comments.comment_ID, signature FROM $wpdb->comments  LEFT JOIN $this->table_name" . " ON $wpdb->comments" . ".comment_ID = $this->table_name" . ".comment_ID  WHERE status = '$status' $limit_clause");
 
         return $out;
     }
@@ -152,7 +157,7 @@ class DefensioDB
 
         $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->comments WHERE comment_approved = %d", $comment_ID));
     }
-    
+
     /* Deletes all comments marked as spam and their Defensio metadata*/
     public function deleteAllSpam()
     {
