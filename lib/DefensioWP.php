@@ -291,7 +291,7 @@ class DefensioWP
             $time_diff = time() - strtotime($article->comment_date);
 
             if($time_diff > 1800)
-                $this->updateDefensioRow( $comment->comment_ID, array('status' => self::UNPROCESSED));
+                $this->defensio_db->updateDefensioRow( $comment->comment_ID, array('status' => self::UNPROCESSED));
 
         } elseif ( $result->status == 'fail' ) { /* Do nothing */   }
     }
