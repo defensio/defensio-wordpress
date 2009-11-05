@@ -413,8 +413,8 @@ function defensio_send_comment($comment_ID, $wp_status = NULL ) {
 add_action('comment_post', 'defensio_send_comment');
 
 function defensio_pre_comment_approved($approved){
-    global $defensio_manager;
-    return $defensio_manager->preApproval($approved);
+    global $defensio_manager, $user_ID;
+    return $defensio_manager->preApproval($approved, $user_ID);
 }
 add_action('pre_comment_approved', 'defensio_pre_comment_approved');
 

@@ -56,12 +56,12 @@ class Defensio_REST_Client
     * the library or technique used as of now it uses a simple sockets implementation, and might throw 
     * an exception if no socket can be open 
     */
-    private function do_request($verb, $path,  $data = Array())
+    private function do_request($verb, $path,  $data = Array(), $timeout = 10)
     {
-        return $this->use_sockets ? $this->do_request_with_sockets($verb, $path, $data) : $this->do_request_with_curl($verb, $path, $data);
+        return $this->use_sockets ? $this->do_request_with_sockets($verb, $path, $data, $timeout) : $this->do_request_with_curl($verb, $path, $data, $timeout );
     }
 
-    private function do_request_with_curl($verb, $path, $data)
+    private function do_request_with_curl($verb, $path, $data, $timeout = NULL)
     {
         if($verb == 'DELETE')
             throw new Exception('DELETE not implemeted yet');
@@ -101,7 +101,7 @@ class Defensio_REST_Client
         return $out;
     }
 
-    private function do_request_with_sockets($verb, $path,  $data = Array())
+    private function do_request_with_sockets($verb, $path,  $data = Array(), $conn_timeout)
     {
         $str_data = http_build_query($data);
         $url = parse_url('http://'. $this->host . $path);
@@ -110,10 +110,22 @@ class Defensio_REST_Client
         if (!isset($url['port']) || empty($url['port']) )
             $url['port'] = 80;
 
-        $sock = fsockopen($url['host'], $url['port']);
+        $sock = fsockopen($url['host'], $url['port'], $errno, $errstr, $conn_timeout );
 
-        if ($sock === FALSE)
-            throw new DefensioConnectionError('Impossible to open socket to ' . $url['host'] . ':' . $url['port']);
+        if ($sock === FALSE){
+            $msg = 'Impossible to open socket to ' . $url['host'] . ':' . $url['port'];
+
+            if($errno == 110)
+                $ex = new DefensioConnectionTimedout($msg);
+            else
+                $ex = new DefensioConnectionError($msg);
+
+            $ex->error_code   = $errno;
+            $ex->error_string = $errstr;
+
+            throw $ex;
+        }
+
 
         $target = $url['path'];
 
@@ -135,11 +147,19 @@ class Defensio_REST_Client
             fputs($sock, $str_data);
 
         $result = ''; 
-        while(!feof($sock)) {
+
+        stream_set_timeout($sock, 3);
+        $info = stream_get_meta_data($sock);
+
+        while(!feof($sock) && !$info['timed_out']) {
             $result .= fgets($sock, 128);
+            $info    = stream_get_meta_data($sock);
         }
 
         fclose($sock);
+
+        if($info['timed_out'])
+            throw new DefensioConnectionTimeout();
 
         $result = explode("\r\n\r\n", $result, 2);
         $header = isset($result[0]) ? explode("\r\n", $result[0]) : '';

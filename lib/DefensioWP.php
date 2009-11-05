@@ -21,11 +21,11 @@ class DefensioWP
     public $deferred_ham_to_spam;
     public $deferred_spam_to_ham;
 
+    const DEFENSIO_PENDING_STATUS = 'defensio_pending';
     const PLATFORM_NAME = 'WordPress';
     const UNPROCESSED   = 'unprocessed';
     const PENDING       = 'pending';
     const OK            = 'ok';
-    const DEFENSIO_PENDING_STATUS = 'defensio_pending';
 
     /*
      * @param string $api_key A Defensio API key
@@ -170,8 +170,8 @@ class DefensioWP
     }
 
     /*
-     * POSTs a comment to Defensio this will create a comment entry that we could later GET from Defensio, also Defensio
-     * should callback this blog under normal circumstances and let it know what happened with the comment. 
+     * POSTs a comment to Defensio this will create a document entry, and Defensio will notify callback.php of the result.
+     * In case callback.php is not notified a GET request will be send to Defensio inquiring about the result.
      *
      * @param integer $id value of comment_ID for the comment being posted
      * @param boolean $retrying 
@@ -181,7 +181,7 @@ class DefensioWP
         $comment  = get_comment($id);
         $document = $this->commentToDocument($comment);
         $document = array_merge($document, array('async' => 'true', 'async-callback' => $this->prepareCallBackUrl()));
-        $data = array();
+        $data     = array();
 
         try {
             $response = $this->defensio_client->postDocument($document);
@@ -206,12 +206,13 @@ class DefensioWP
                     return $this->postComment($id, TRUE);
         }
 
-        if ($comment->comment_approved != 1){
+        if ($comment->comment_approved != 1) {
 
-            if($data['status'] == self::UNPROCESSED)
+            /* if($data['status'] == self::UNPROCESSED)
                 wp_update_comment(array('comment_approved' => 0, 'comment_ID' => $id));
-            else
-                wp_update_comment(array('comment_approved' => self::DEFENSIO_PENDING_STATUS, 'comment_ID' => $id));
+              else*/
+            // If not approved by comment should not be shown until defensio has seen it.
+            wp_update_comment(array('comment_approved' => self::DEFENSIO_PENDING_STATUS, 'comment_ID' => $id));
 
         }
 
@@ -224,13 +225,13 @@ class DefensioWP
         }
     }
 
-    /* To be called in the pre-approve hook makes anything not automatically approved Defensio_pending
+    /* To be called in the pre-approve hook makes anything not automatically approved self::DEFENSIO_PENDING_STATUS
      * @param string $approved_value passed by the pre-comment-approved hook
      */
-    public function preApproval($approved_value)
+    public function preApproval($approved_value, $user_ID)
     {
-        if($approved_value == 1)
-            return 1;
+        if($user_ID && $this->isTrustedUser($user_ID))
+            return $approved_value;
         else
             return self::DEFENSIO_PENDING_STATUS;
     }
@@ -257,7 +258,8 @@ class DefensioWP
     }
 
     /*
-     * Acts based on the result of for an previously POSTed document.
+     * Acts based on the result of for an previously POSTed document, result may come from a GET request or a callback 
+     * from Defensio
      *
      * @params Object $signature a Defensio row from DefensioDB#getDefensioRow
      * @params Object $result the result of a GET that comment (or the result pushed by Defensio to a callback)
@@ -268,7 +270,17 @@ class DefensioWP
 
         if ( $result->status == 'success' ) {
 
-            if( $result->allow == 'false' ) {
+            if( $result->allow == 'true' ) {
+                if($comment->comment_approved == self::DEFENSIO_PENDING_STATUS || $comment->comment_approved == 'spam')
+                    $approval_value = $this->reApplyWPAllow((array)$comment);
+
+                elseif($comment->comment_approved == '1')
+                    $approval_value = '1';
+
+                $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
+                $this->doApply($comment, $result, $approval_value, $dictionary_filter);
+
+            } else {
                 // If the article is old and the user wants to get rid of not allowed in old posts...
                 $article = get_post($comment->comment_post_ID);
                 $time_diff = time() - strtotime($article->post_modified_gmt);
@@ -281,17 +293,9 @@ class DefensioWP
                     $this->doApply($comment, $result, 'spam', FALSE);
                 }
 
-            } else {
-                if($comment->comment_approved == self::DEFENSIO_PENDING_STATUS || $comment->comment_approved == 'spam')
-                    $approval_value = '0';
-                elseif($comment->comment_approved == '1')
-                    $approval_value = '1';
-
-                $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
-                $this->doApply($comment, $result, $approval_value, $dictionary_filter);
             }
 
-        } elseif ( $result->status == 'pending' ) {
+        } elseif ( $result->status == self::PENDING ) {
             // If it has been pending for 'too long' eg more than 30 minutes start over.
             $time_diff = time() - strtotime($article->comment_date);
 
@@ -301,7 +305,7 @@ class DefensioWP
         } elseif ( $result->status == 'fail' ) { /* Do nothing */   }
     }
 
-    private function doApply($comment, $result, $approved_value, $dictionary_filter=FALSE )
+    private function doApply($comment, $result, $approved_value, $profanity_filter=FALSE )
     {
 
         $this->defensio_db->updateDefensioRow($comment->comment_ID, array( 'status'           => self::OK, 
@@ -309,7 +313,7 @@ class DefensioWP
                                                                            'classification'   => $result->classification,
                                                                            'dictionary_match' => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
 
-        if($dictionary_filter){
+        if($profanity_filter){
             $new_content = $this->filterProfanity($comment->comment_content);
 
             if($new_content)
@@ -379,7 +383,7 @@ class DefensioWP
 
             } catch (DefensioUnexpectedHTTPStatus $ex) {
                 /* Suppress the exception on 404 documents are not warrantied to be there after some time if this is 
-                 * an old comment 404 makes sense, re-throw it in any other HTTP code
+                 * an old comment 404 makes sense, re-throw it on any other HTTP code
                  */
                 if($ex->http_status != 404)
                     throw $ex;
@@ -493,6 +497,37 @@ class DefensioWP
     private function prepareCallBackUrl()
     {
         return $this->async_callback_url . "?id=" . md5($this->defensio_client->getApiKey());
+    }
+
+    // Do the same as wp_allow_comment
+    private function reApplyWPAllow($comment_data)
+    {
+        global $wpdb;
+        extract($comment_data, EXTR_SKIP);
+
+        if ($user_id) {
+            $userdata = get_userdata($user_id);
+            $user = new WP_User($user_id);
+            $post_author = $wpdb->get_var("SELECT post_author FROM $wpdb->posts WHERE ID = '$comment_post_ID' LIMIT 1");
+        }
+
+        if ($userdata && ($user_id == $post_author || $user->has_cap('level_9'))) {
+            // The author and the admins get respect.
+            $approved = 1;
+        } else {
+            // Everyone else's comments will be checked.
+            if ( check_comment($comment_author, $comment_author_email, $comment_author_url, $comment_content, $comment_author_IP, $comment_agent, $comment_type)) {
+                $approved = 1;
+            } else {
+                $approved = 0;
+            }
+
+            if (wp_blacklist_check($comment_author, $comment_author_email, $comment_author_url, $comment_content, $comment_author_IP, $comment_agent)) {
+                $approved = 'spam';
+            }
+        }
+
+        return $approved;
     }
 }
 

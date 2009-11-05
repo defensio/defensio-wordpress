@@ -18,7 +18,7 @@ if( !isset($_GET['id']) || ($_GET['id'] != md5($defensio_conf['key'])) )
 try{
 
     $response = Defensio::handlePostDocumentAsyncCallback();
-    $manager = new DefensioWP($defensio_conf['key'], $defensio_conf['server'], $defensio_conf['async_callback_url']);
+    $manager  = new DefensioWP($defensio_conf['key'], $defensio_conf['server'], $defensio_conf['async_callback_url']);
     $manager->applyCallbackResult($response[1]);
 
 } catch (DefensioEmptyCallbackData $ex){

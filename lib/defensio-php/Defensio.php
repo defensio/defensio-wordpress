@@ -17,6 +17,7 @@ class Defensio
 {
 
     // Misc
+    # const API_HOST    = 'api.defensio.com';
     const API_HOST    = 'localhost:3000';
     const USER_AGENT  = 'Defensio-PHP 2.0';
     const CLIENT_ID   = 'Defensio-PHP | 2.0 | Camilo Lopez | clopez@websense.com';
@@ -159,8 +160,11 @@ class Defensio
         if ($http_status == 401 && $throw_on_failure)
           throw new DefensioInvalidKey("Invalid API key");
 
-        if (!in_array($http_status, $expected_http_statuses) && $throw_on_failure)
-          throw new DefensioUnexpectedHTTPStatus("Unexpected HTTP status code: $http_status");
+        if (!in_array($http_status, $expected_http_statuses) && $throw_on_failure){
+            $ex = new DefensioUnexpectedHTTPStatus("Unexpected HTTP status code: $http_status");
+            $ex->http_status = $http_status;
+            throw $ex;
+        }
 
         if (!isset($result_object) || 
              (isset($result_object) && !in_array($result_object->status, array('success', 'pending'))) &&
