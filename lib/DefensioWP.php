@@ -18,6 +18,9 @@ class DefensioWP
     private $trusted_roles;
     private $authenticated;
 
+    public $deferred_ham_to_spam;
+    public $deferred_spam_to_ham;
+
     const PLATFORM_NAME = 'WordPress';
     const UNPROCESSED   = 'unprocessed';
     const PENDING       = 'pending';
@@ -35,6 +38,8 @@ class DefensioWP
         $this->trusted_roles = array('administrator', 'editor', 'author');
         $this->defensio_client  = new Defensio($api_key);
         $this->async_callback_url   = $async_callback_url;
+        $this->deferred_ham_to_spam = array();
+        $this->deferred_spam_to_ham = array();
     }
 
     /* 
