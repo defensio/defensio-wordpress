@@ -89,18 +89,17 @@ class DefensioWP
      */
     public function getPendingResults()
     {
-
         $pending_coments = $this->defensio_db->getPendingComments();
 
         if ( is_array($pending_coments) ) {
+
             foreach( $pending_coments as $comment ) {
                 $result = NULL;
 
                 try {
                     $response = $this->defensio_client->getDocument($comment->signature);
                     $result = $response[1];
-                }
-                catch (DefensioFail $ex) { 
+                } catch (DefensioFail $ex) { 
                     /* 
                      * getDocument will throw DefensioFail on document not found instead of DefensioUnexpectedHTTPStatus; 
                      * since  HTTP 404 makes sense as not found. In case a GET request for a pending comment fails whit and 
@@ -221,7 +220,6 @@ class DefensioWP
     }
 
     /* To be called in the pre-approve hook makes anything not automatically approved Defensio_pending
-     *
      * @param string $approved_value passed by the pre-comment-approved hook
      */
     public function preApproval($approved_value)
@@ -261,8 +259,9 @@ class DefensioWP
      */
     public function applyResult($defensio_row, $result)
     {
+        $comment = get_comment($defensio_row->comment_ID);
+
         if ( $result->status == 'success' ) {
-            $comment = get_comment($defensio_row->comment_ID);
 
             if( $result->allow == 'false' ) {
                 // If the article is old and the user wants to get rid of not allowed in old posts...
@@ -286,6 +285,13 @@ class DefensioWP
                 $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
                 $this->doApply($comment, $result, $approval_value, $dictionary_filter);
             }
+
+        } elseif ( $result->status == 'pending' ) {
+            // If it has been pending for 'too long' eg more than 30 minutes start over.
+            $time_diff = time() - strtotime($article->comment_date);
+
+            if($time_diff > 1800)
+                $this->updateDefensioRow( $comment->comment_ID, array('status' => self::UNPROCESSED));
 
         } elseif ( $result->status == 'fail' ) { /* Do nothing */   }
     }
@@ -327,7 +333,8 @@ class DefensioWP
         }
     }
 
-    /* Receives a parsed Defensio result, useful when reading a callback from Defensio 
+    /*
+    * Receives a parsed Defensio result, useful when reading a callback from Defensio 
     * @param object $result a parsed Defensio result
     */
     public function applyCallbackResult($result)
