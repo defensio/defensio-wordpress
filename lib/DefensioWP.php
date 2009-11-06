@@ -297,7 +297,7 @@ class DefensioWP
 
         } elseif ( $result->status == self::PENDING ) {
             // If it has been pending for 'too long' eg more than 30 minutes start over.
-            $time_diff = time() - strtotime($article->comment_date);
+            $time_diff = time() - strtotime( $comment->comment_date );
 
             if($time_diff > 1800)
                 $this->defensio_db->updateDefensioRow( $comment->comment_ID, array('status' => self::UNPROCESSED));
