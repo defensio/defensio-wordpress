@@ -18,6 +18,8 @@ function defensio_render_quarantine_html($v) {
   			    echo "Your quarantine doesn't contain any spam pingbacks or trackbacks.";
   			elseif($v['type_filter'] == 'comments')
   			    echo "Your quarantine doesn't contain any spam comments.";
+  			elseif($v['type_filter'] == 'malicious')
+  			    echo "Your quarantine doesn't contain any malicious comments.";
   		    else 
   			    echo "Your quarantine doesn't contain any spam.";
 
@@ -142,6 +144,7 @@ function defensio_render_navigation_bar($v, $position) {
 					<option <?php if( $v['type_filter'] == "all") echo 'selected="1"'; ?> value="all">Show all comment types</option>
 					<option <?php if( $v['type_filter'] == "comments") echo 'selected="1"'; ?> value="comments">Comments</option>
 					<option <?php if( $v['type_filter'] == "pings") echo 'selected="1"'; ?> value="pings">Pings</option>
+					<option <?php if( $v['type_filter'] == "malicious") echo 'selected="1"'; ?> value="malicious">Malicious</option>
 				</select>
 				<input id="post-query-submit" class="button-secondary" type="submit" value="Filter"/>
 

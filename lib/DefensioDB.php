@@ -229,7 +229,9 @@ class DefensioDB
         // Comments have empty type, pings have something.
         if(isset($type) && !empty($type)) {
             if ($type == 'comments')
-                $type_statement= " AND comment_type = '' ";
+                $type_statement = " AND comment_type = '' ";
+            elseif ($type == 'malicious')
+                $type_statement = " AND $this->table_name.classification = 'malicious'";
             else
                 $type_statement = " AND comment_type != '' ";
         }
