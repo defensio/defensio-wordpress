@@ -675,7 +675,8 @@ add_filter('comment_status_links', 'defensio_replace_default_quarantine_link', 9
 
 // Redirect default quarantine to defensio's. There is no useful hook to change the link in dashboard.php... just redirect 
 function defensio_redirect_to_qurantine($a){
-    if($_REQUEST['comment_status'] == 'spam')urlwp_redirect("edit-comments.php?page=defensio-quarantine");
+    if($_REQUEST['comment_status'] == 'spam')
+        wp_redirect("edit-comments.php?page=defensio-quarantine");
 }
 add_action('load-edit-comments.php', 'defensio_redirect_to_qurantine');
 
