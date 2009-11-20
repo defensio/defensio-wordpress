@@ -19,7 +19,7 @@ class Defensio
     // Misc
     const API_HOST    = 'api.defensio.com';
     const USER_AGENT  = 'Defensio-PHP 2.0';
-    const CLIENT_ID   = 'Defensio-PHP | 2.0 | Camilo Lopez | clopez@websense.com';
+    const CLIENT_ID   = 'Defensio-PHP | 2.0 | Websense Inc. | info@defensio.com';
     const FORMAT      = 'xml';
 
     /* @var string Name of your application */
