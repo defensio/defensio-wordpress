@@ -48,7 +48,7 @@ function defensio_render_configuration_html($v) {
 <p>
 		<input type="hidden" name="defensio_filter_profanity_toggle" />
 		<input type="checkbox" name="defensio_filter_profanity" <?php if($v['filter_profanity'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
-		Automatically filter profanity in comments' content.
+		Remove profanity from comments content.
 	</p>
 
 			<input type="submit" class="button" value="Save settings">
