@@ -44,15 +44,20 @@ function defensio_render_configuration_html($v) {
 			<h3><label>Automatic removal of spam</label></h3>
 			<?php defensio_render_delete_older_than_option($v); ?>
 
-      <h3><label>Profanity filter</label></h3>
-<p>
+			<h3><label>Profanity filter</label></h3>
+	<p>
 		<input type="hidden" name="defensio_filter_profanity_toggle" />
 		<input type="checkbox" name="defensio_filter_profanity" <?php if($v['filter_profanity'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
 		Remove profanity from comments content.
 	</p>
 
+			<h3>More options</h3>
+			<p>You can modify more advanced options in your <a href="http://defensio.com/manage/options/<?php echo $v['key']?>" target="_blank">Defensio control panel</a>.</p>
+			
 			<input type="submit" class="button" value="Save settings">
 		</form>
+		
+		
 <?php
 	}
 
