@@ -26,29 +26,32 @@ class Defensio
     public $platform;
     public $rest_client;
     private $api_key;
+    private $client_id;
 
     private $defensio_paths; 
 
-    public function __construct($api_key)
+    public function __construct($api_key, $client_id = self::CLIENT_ID)
     {
         $this->api_key = $api_key;
         $this->rest_client = new Defensio_REST_Client(self::API_HOST);
+        $this->client_id = $client_id;
         $this->defensio_paths = Array(
           'key_get'                => "/2.0/users/$this->api_key." . self::FORMAT,
           'document_post'          => "/2.0/users/$this->api_key/documents." . self::FORMAT,
           'document_put_get'       => "/2.0/users/$this->api_key/documents/{{signature}}." . self::FORMAT,
           'basic_stats_get'        => "/2.0/users/$this->api_key/basic-stats." . self::FORMAT,
           'extended_stats_get'     => "/2.0/users/$this->api_key/extended-stats." . self::FORMAT,
-          'profanity_filter_post' => "/2.0/users/$this->api_key/profanity-filter." . self::FORMAT);
+          'profanity_filter_post'  => "/2.0/users/$this->api_key/profanity-filter." . self::FORMAT);
     }
 
-    /* Api key getter*/
+    /** Api key getter*/
     public function getApiKey()
     {
         return $this->api_key;
     }
 
-    /* Get information about the api key
+    /** 
+     * Get information about the api key
      * @see http://defensio.com/api
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
      */
@@ -58,7 +61,7 @@ class Defensio
         return self::parseResult($result, FALSE, array(200, 404));
     }
 
-    /*
+    /**
      * Create and analyze a new document
      * @param array $params The parameters to be sent to Defensio.
      * @see http://defensio.com/api
@@ -67,11 +70,11 @@ class Defensio
     public function postDocument($params)
     {
         $result = $this->rest_client->post($this->defensio_paths['document_post'], 
-            array_merge($params, array('client' => self::CLIENT_ID) ));
+            array_merge($params, array('client' => $this->client_id)));
         return self::parseResult($result);
     }
 
-    /*
+    /**
      * Get the status of an existing document
      * @param string $signature The signature of the document to retrieve
      * @see http://defensio.com/api
@@ -84,7 +87,7 @@ class Defensio
         return self::parseResult($result, TRUE, array(200, 404));
     }
 
-    /*
+    /**
      * Modify the properties of an existing document
      * @param string $signature The parameters to be sent to Defensio.
      * @param array $params The parameters to be sent to Defensio.
@@ -98,7 +101,8 @@ class Defensio
         return self::parseResult($result);
     }
 
-    /* Get basic statistics for the current user
+    /** 
+     * Get basic statistics for the current user
      * @see http://defensio.com/api
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
      */
@@ -108,7 +112,8 @@ class Defensio
         return self::parseResult($result, FALSE, array(200, 404));
     }
 
-    /* Get more exhaustive statistics for the current user
+    /**
+     * Get more exhaustive statistics for the current user
      * @see http://defensio.com/api
      * @param array $params The parameters to be sent to Defensio. Keys can either be Strings or Symbols
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
@@ -122,7 +127,8 @@ class Defensio
         return self::parseResult($result, FALSE, array(200, 404));
     }
 
-    /* Filter a set of values based on a pre-defined dictionary
+    /** 
+     * Filter a set of values based on a pre-defined dictionary
      * @see http://defensio.com/api
      * @param array $params The fields to be filtered 
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
@@ -133,7 +139,8 @@ class Defensio
         return self::parseResult($result, FALSE, array(200));
     }
 
-    /* Takes the data POSTed by Defensio during the callback following an async request and returns an array
+    /** 
+     * Takes the data POSTed by Defensio during the callback following an async request and returns an array
      * @param string $data XML data received by Defensio. If not specified, php://input will be used
      * @return array Array containing two values: the HTTP status & a SimpleXML object with the values returned by Defensio
      */

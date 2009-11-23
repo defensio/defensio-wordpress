@@ -26,8 +26,9 @@ class DefensioWP
     const UNPROCESSED   = 'unprocessed';
     const PENDING       = 'pending';
     const OK            = 'ok';
+    const CLIENT_ID     = 'Defensio for Wordpress | 2.0 | Websense Inc. | info@defensio.com';
 
-    /*
+    /**
      * @param string $api_key A Defensio API key
      * @param string $server URL of the Defensio server
      */
@@ -36,13 +37,13 @@ class DefensioWP
         $this->defensio_db   = new DefensioDB();
         $this->authenticated = NULL;
         $this->trusted_roles = array('administrator', 'editor', 'author');
-        $this->defensio_client  = new Defensio($api_key);
+        $this->defensio_client  = new Defensio($api_key, self::CLIENT_ID);
         $this->async_callback_url   = $async_callback_url;
         $this->deferred_ham_to_spam = array();
         $this->deferred_spam_to_ham = array();
     }
 
-    /* 
+    /** 
      * Get stats for this user, try wp_cache first then load from Defensio server unlike the cache in Defensio's
      * counter widget this method relies on WordPresse's own object cache
      */
@@ -58,7 +59,7 @@ class DefensioWP
         return $stats;
     }
 
-    /*
+    /**
      *  Will change return true if that key is valid
      *  @param string $key the candidate key
      */
@@ -89,7 +90,7 @@ class DefensioWP
         return $out;
     }
 
-    /*
+    /**
      * Will send a GET request to Defensio querying about pending comments and act accordingly
      */
     public function getPendingResults()
@@ -122,19 +123,19 @@ class DefensioWP
         }
     }
 
-    /* Shortcut for retrain */
+    /** Shortcut for retrain */
     public function submitSpam($signatures)
     {
         $this->retrain('spam', $signatures);
     }
 
-    /* Shortcut for retrain */
+    /** Shortcut for retrain */
     public function submitHam($signatures)
     {
         $this->retrain('ham', $signatures);
     }
 
-    /* Get stats from the Defensio's server */
+    /** Get stats from the Defensio's server */
     private function refreshStats()
     {
         $out = FALSE;
@@ -147,7 +148,7 @@ class DefensioWP
         return $out;
     }
 
-    /* 
+    /**
      * @param object $article a WP post 
      * @param object $userdata from get_currentuserinfo
      */
@@ -169,7 +170,7 @@ class DefensioWP
         $this->defensio_client->postDocument($params);
     }
 
-    /*
+    /**
      * POSTs a comment to Defensio this will create a document entry, and Defensio will notify callback.php of the result.
      * In case callback.php is not notified a GET request will be send to Defensio inquiring about the result.
      *
@@ -225,7 +226,8 @@ class DefensioWP
         }
     }
 
-    /* To be called in the pre-approve hook makes anything not automatically approved self::DEFENSIO_PENDING_STATUS
+    /** 
+     *   To be called in the pre-approve hook makes anything not automatically approved self::DEFENSIO_PENDING_STATUS
      * @param string $approved_value passed by the pre-comment-approved hook
      */
     public function preApproval($approved_value, $user_ID)
@@ -236,7 +238,7 @@ class DefensioWP
             return self::DEFENSIO_PENDING_STATUS;
     }
 
-    /*
+    /**
      * Will apply profanity filter to $input, by doing a POST call to profanity-filter and return it's result
      * @param string $input
      */
@@ -257,7 +259,7 @@ class DefensioWP
         return $result;
     }
 
-    /*
+    /**
      * Acts based on the result of for an previously POSTed document, result may come from a GET request or a callback 
      * from Defensio
      *
@@ -328,7 +330,7 @@ class DefensioWP
             wp_notify_moderator($comment->comment_ID); 
     }
 
-    /* Call postComment on any unprocessed comments */
+    /** Calls postComment on any unprocessed comments */
     public function postUnprocessed()
     {
         $unprocessed = $this->defensio_db->getUnprocessedComments();
@@ -342,7 +344,7 @@ class DefensioWP
         }
     }
 
-    /*
+    /**
     * Receives a parsed Defensio result, useful when reading a callback from Defensio 
     * @param object $result a parsed Defensio result
     */
@@ -354,7 +356,7 @@ class DefensioWP
             $this->applyResult($comment[0], $result);
     }
 
-    /*
+    /**
     * Will PUT a new allow value to Defensio and keep the Defensio DB
     * in sync with the moderators criteria for spam/ham
     */
@@ -418,7 +420,7 @@ class DefensioWP
         }
     }
 
-    /*
+    /**
      * Convert a comment object (result of get_comment) into an array according to Defensio's API
      * @param object $comment a WP comment object typically the return value of get_comment
      * @returns array an array ready to send to Defensio /user/xxx/documents
@@ -465,7 +467,7 @@ class DefensioWP
         return $doc;
     }
 
-    /*
+    /**
      * @param integer $user_id The user id of the user we are querying 
      * @return boolean is this a trusted user ?
      */
@@ -487,19 +489,19 @@ class DefensioWP
         return $out;
     }
 
-    /* Look for wp_openid */
+    /** Look for wp_openid */
     private function isOpenIdEnabled()
     {
         return function_exists('is_user_openid');
     }
 
-    /* Add an id to the URL for checking in the callback responder */
+    /** Add an id to the URL for checking in the callback responder */
     private function prepareCallBackUrl()
     {
         return $this->async_callback_url . "?id=" . md5($this->defensio_client->getApiKey());
     }
 
-    // Do the same as wp_allow_comment
+    /** Does the same as wp_allow_comment */
     private function reApplyWPAllow($comment_data)
     {
         global $wpdb;
