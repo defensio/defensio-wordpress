@@ -411,13 +411,27 @@ if($v['stats'] and $v['authenticated']) :
 <?php 		if(isset($v['stats']->learning) and $v['stats']->learning == 'true' ) { ?>
 				<h3 class="defensio_learning"><?php echo $v['stats']->{'learning-status'} ?></h3>
 <?php		} ?>
-				<ul>
-					<li><strong>Recent accuracy: <?php echo number_format( ((float)$v['stats']->accuracy) * 100, 2, '.', '')  ?>%</strong></li>
-					<li><?php echo $v['stats']->unwanted->spam?> spam</li>
-					<li><?php echo $v['stats']->legitimate->total?> legitimate comments</li>
-					<li><?php echo $v['stats']->{ 'false-negatives' }?> false negatives (undetected spam)</li>
-					<li><?php echo $v['stats']->{ 'false-positives' }?> false positives (legitimate comments identified as spam)</li>
-				</ul>
+				<table>
+        <tr>
+          <th><strong>Recent accuracy: <?php echo number_format( ((float)$v['stats']->accuracy) * 100, 2, '.', '')  ?>%</strong></th>
+        </tr>
+
+          <tr>
+
+          <td><?php echo $v['stats']->unwanted->spam ?></td> <td>Spam</td>
+
+          </tr>
+          <tr>
+                    <td><?php echo empty($v['stats']->unwanted->malicious) ? 'Not supported' : ($v['stats']->unwanted->malicious) ?> </td> <td> Malicious</td>
+					</tr>
+          <td><?php echo $v['stats']->legitimate->total ?> </td>  <td>Legitimate comments</li>
+          <tr>
+          <td><?php echo $v['stats']->{ 'false-negatives' } ?> </td> <td>False negatives (undetected spam)</td>
+          </tr>
+          <tr>
+          <td><?php echo $v['stats']->{ 'false-positives' } ?> </td> <td>False positives (legitimate comments identified as spam)</td>
+          </tr>
+				</table>
 		
         </div>
 	<div class="defensio_more_stats">
