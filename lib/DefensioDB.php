@@ -45,7 +45,7 @@ class DefensioDB
                 signature VARCHAR(55) NOT NULL,
                 status ENUM('ok', 'unprocessed', 'pending'),
                 classification ENUM('spam', 'legitimate', 'malicious'),
-                dictionary_match TINYINT,
+                profanity_match TINYINT,
                 UNIQUE KEY comment_ID (comment_ID)
             );";
 
@@ -245,7 +245,7 @@ class DefensioDB
         $wpdb->posts.post_date as post_date, $wpdb->comments.comment_content,$wpdb->comments.comment_post_ID  as post_id  
         FROM  $wpdb->comments LEFT JOIN $this->table_name ON $wpdb->comments.comment_ID = $this->table_name.comment_ID 
         LEFT JOIN $wpdb->posts ON $wpdb->comments.comment_post_ID = $wpdb->posts.ID WHERE comment_approved = 'spam' AND 
-        status = 'ok' $spaminess_filter $search_statement $type_statement ORDER BY $sort_by_statement LIMIT 
+        ( status = 'ok' OR status IS NULL) $spaminess_filter $search_statement $type_statement ORDER BY $sort_by_statement LIMIT 
         $limit_start, $limit_end
 SQL
     );
