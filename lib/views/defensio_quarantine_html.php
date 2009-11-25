@@ -245,10 +245,13 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 
 
 ?>
-																
 																<p class="defensio_body_shrunk" id="<?php echo "defensio_body_" . $comment->id; ?>">
 																	<?php echo ($comment->comment_content) ?>
-																</p>
+                                </p>
+
+                                <?php if($c->classification == 'malicious'): ?> 
+                                <div class="malicious-comment">MALICIOUS</div>
+                                <?php endif; ?>
 
                                 <div id="inline-<?php echo $comment->id; ?>" class="hidden">
                                 <textarea class="comment" rows="3" cols="10"><?php echo $comment->comment_content; ?></textarea>
