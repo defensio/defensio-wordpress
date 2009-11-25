@@ -279,8 +279,8 @@ class DefensioWP
                 elseif($comment->comment_approved == '1')
                     $approval_value = '1';
 
-                $dictionary_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
-                $this->doApply($comment, $result, $approval_value, $dictionary_filter);
+                $profanity_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
+                $this->doApply($comment, $result, $approval_value, $profanity_filter);
 
             } else {
                 // If the article is old and the user wants to get rid of not allowed in old posts...
@@ -313,7 +313,7 @@ class DefensioWP
         $this->defensio_db->updateDefensioRow($comment->comment_ID, array( 'status'           => self::OK, 
                                                                            'spaminess'        => (float)$result->spaminess,
                                                                            'classification'   => $result->classification,
-                                                                           'dictionary_match' => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
+                                                                           'profanity_match' => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
 
         if($profanity_filter){
             $new_content = $this->filterProfanity($comment->comment_content);
@@ -399,19 +399,19 @@ class DefensioWP
                 break;
             case 'ham':
 
-                $dictionary_match = $row[0]->dictionary_match;
+                $profanity_match = $row[0]->profanity_match;
 
-                if(get_option('defensio_filter_profanity') && $row[0]->dictionary_match){
+                if(get_option('defensio_filter_profanity') && $row[0]->profanity_match){
                     $comment = get_comment($row[0]->comment_ID);
                     $filtered_content = $this->filterProfanity($comment->comment_content);
 
                     if($filtered_content){
-                        $dictionary_match = 0; // Should not match anymore, avoid further calls to $defensio_client->postDictionaryFilter
+                        $profanity_match = 0; // Should not match anymore, avoid further calls to $defensio_client->postDictionaryFilter
                         wp_update_comment(array('comment_ID' => $comment->comment_ID, 'comment_content' => $filtered_content ));
                     }
                 }
 
-                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 'dictionary_match' => $dictionary_match));
+                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 'profanity_match' => $profanity_match));
                 break;
             default:
                 // Do nothing for any other values
