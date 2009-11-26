@@ -186,8 +186,8 @@ TODO: update page links
 
 function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
         global $comment, $post;
-	$comment = $c;
-	$spaminess_class = defensio_class_for_spaminess($comment->spaminess);
+				$comment = $c;
+				$spaminess_class = defensio_class_for_spaminess($comment->spaminess);
         $post = get_post($comment->comment_post_ID);
         $authordata = get_userdata($post->post_author);
 	
@@ -249,8 +249,8 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 																	<?php echo ($comment->comment_content) ?>
                                 </p>
 
-                                <?php if($c->classification == 'malicious'): ?> 
-                                <div class="malicious-comment">MALICIOUS</div>
+																<?php if($c->classification == 'malicious'): ?> 
+                                <span class="malicious_label"><strong>Warning:</strong> Contains malicious content</span>
                                 <?php endif; ?>
 
                                 <div id="inline-<?php echo $comment->id; ?>" class="hidden">

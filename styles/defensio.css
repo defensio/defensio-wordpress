@@ -214,13 +214,16 @@ p#defensio_quarantine_empty {
   text-align:center;
 }
 
-div.malicious-comment{
+span.malicious_label {
   background: red;
   padding: 2px;
-  width: 70px;
   color: white;
   font-weight: bold;
+  font-size: 8pt;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
 }
+
 span.defensio_more_details a {
 /*  color: #cccccc;*/
 /*  font-size: 7pt;*/
