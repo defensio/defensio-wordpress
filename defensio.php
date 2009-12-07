@@ -99,7 +99,7 @@ function defensio_unprocessed_warning() {
     if ( $unprocessed_count > 0 ) {
         echo "<div id='defensio_warning' class='updated fade'>" .
             "<p>There are <strong>$unprocessed_count</strong> comment(s) that have not been processed by Defensio. </p>".
-            "<p>Either your server is having connectivity problems or Denfensio servers are under extremely heavy load, your unprocessed comments will be processed withing the next ten minutes or when your connectivity is restored. </p></div>";
+            "<p>There might be a connectivity issue between you and Defensio. Your comments will automatically processed within the next 10 minutes, or when connectivity is restored.</p></div>";
     }
 }
 add_action('admin_notices', 'defensio_unprocessed_warning');
@@ -108,9 +108,7 @@ function defensio_fsock_warning() {
 
     if ( !is_callable('fsockopen') || in_array('fsockopen', explode(',',  ini_get('disable_functions'))) ) {
         echo "<div id='defensio_warning' class='updated fade'>" .
-            "<p> 
-            Your web host or server administrator has disabled PHP\'s <code>fsockopen</code> function.  <strong>Defensio cannot work correctly until this is fixed.</strong>  Please contact your web host or firewall administrator and give them this _link_here_ information about Defensio's system requeriments</a>
-            </p></div>";
+            "<p>The administrator has disabled PHP\'s <code>fsockopen</code> on your server. <strong>Defensio cannot work correctly until this function is enabled.</strong>  Please contact your web hosting provider and ask them to enable it.</p></div>";
     }
 }
 add_action('admin_notices', 'defensio_fsock_warning');
