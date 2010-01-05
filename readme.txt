@@ -91,6 +91,8 @@ the images directory.  Be careful to follow the naming convention we already hav
 1. The standard Defensio Quarantine view, sorted and color-coded by spaminess.
  
 2. The recent accuracy chart.
+
+3. Advanced settings.
  
 
 == Compatibility ==
