@@ -44,7 +44,7 @@ function defensio_install() {
     add_option('defensio_delete_older_than_days', '30');
     add_option('defensio_delete_older_than', '0');
 }
-register_activation_hook(basename(__FILE__), 'defensio_install');
+register_activation_hook(__FILE__ , 'defensio_install');
 
 /*
  * Creates Defensio table in MySQL
