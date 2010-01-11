@@ -43,6 +43,7 @@ function defensio_install() {
     add_option(defensio_user_unique_option_key('hide_more_than_threshold'), '1');
     add_option('defensio_delete_older_than_days', '30');
     add_option('defensio_delete_older_than', '0');
+    add_option('defensio_profanity_do', 'off');
 }
 register_activation_hook(__FILE__ , 'defensio_install');
 
@@ -189,13 +190,14 @@ function defensio_configuration() {
     if(empty($threshold))
         $threshold  = 80;
 
-    if(isset($_POST['defensio_filter_profanity_toggle'])){
-        if(isset($_POST['defensio_filter_profanity'])){
-            update_option('defensio_filter_profanity', '1');
-        } else {
-            update_option('defensio_filter_profanity', '0');
-        }
+    if(isset($_POST['defensio_profanity_do'])){
+        update_option('defensio_profanity_do', $_POST['defensio_profanity_do'] );
     }
+
+    $profanity_do = get_option('defensio_profanity_do');
+
+    if(!in_array($profanity_do, array('off', 'mask', 'delete')))
+        $profanity_do = 'off';
 
     defensio_render_configuration_html(array(
         'key'           => $key, 
@@ -205,7 +207,7 @@ function defensio_configuration() {
         'valid'         => $valid,
         'remove_older_than_days'   => get_option('defensio_delete_older_than_days'),
         'remove_older_than'        => get_option('defensio_delete_older_than'),
-        'filter_profanity'         => get_option('defensio_filter_profanity'),
+        'profanity_do'         => $profanity_do,
         'remove_older_than_error'  => $older_than_error,
         'defensio_post_error_code' => $err_code
     ));

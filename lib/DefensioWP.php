@@ -181,7 +181,7 @@ class DefensioWP
     {
         $comment  = get_comment($id);
         $document = $this->commentToDocument($comment);
-        $document = array_merge($document, array('async' => 'true', 'async-callback' => $this->prepareCallBackUrl()));
+        $document = array_merge($document, array('async' => 'true', 'async-callback' => $this->prepareCallBackUrl() ));
         $data     = array();
 
         try {
@@ -271,16 +271,22 @@ class DefensioWP
         $comment = get_comment($defensio_row->comment_ID);
 
         if ( $result->status == 'success' ) {
+            $profanity_action = NULL;
+
+            if($result->{'profanity-match'} == 'true')
+                $profanity_action = get_option('defensio_profanity_do');
+
 
             if( $result->allow == 'true' ) {
+
                 if($comment->comment_approved == self::DEFENSIO_PENDING_STATUS || $comment->comment_approved == 'spam')
                     $approval_value = $this->reApplyWPAllow((array)$comment);
 
                 elseif($comment->comment_approved == '1')
                     $approval_value = '1';
 
-                $profanity_filter = get_option('defensio_filter_profanity') && $result->{'profanity-match'} == 'true';
-                $this->doApply($comment, $result, $approval_value, $profanity_filter);
+
+                $this->doApply($comment, $result, $approval_value, $profanity_action);
 
             } else {
                 // If the article is old and the user wants to get rid of not allowed in old posts...
@@ -292,7 +298,9 @@ class DefensioWP
                     $this->defensio_db->deleteCommentAndDefensioRow($comment->comment_ID);
 
                 } else {
-                    $this->doApply($comment, $result, 'spam', FALSE);
+                    // Do not mask profanity in spam no matter what!
+                    if($profanity_action == 'mask') $profanity_action = NULL;
+                    $this->doApply($comment, $result, 'spam', $profanity_action);
                 }
 
             }
@@ -307,20 +315,17 @@ class DefensioWP
         } elseif ( $result->status == 'fail' ) { /* Do nothing */   }
     }
 
-    private function doApply($comment, $result, $approved_value, $profanity_filter=FALSE )
+    private function doApply($comment, $result, $approved_value, $profanity_action=NULL )
     {
+        $comment = $this->applyProfanityRules($comment, $profanity_action);
+
+        if(is_null($comment)) return;
 
         $this->defensio_db->updateDefensioRow($comment->comment_ID, array( 'status'           => self::OK, 
                                                                            'spaminess'        => (float)$result->spaminess,
                                                                            'classification'   => $result->classification,
-                                                                           'profanity_match' => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
+                                                                           'profanity_match'  => ($result->{'profanity-match'} == 'true') ? 1 : 0 ));
 
-        if($profanity_filter){
-            $new_content = $this->filterProfanity($comment->comment_content);
-
-            if($new_content)
-                $comment->comment_content = $new_content;
-        }
 
         wp_update_comment(array('comment_approved' => $approved_value, 
                                 'comment_ID'       => $comment->comment_ID, 
@@ -329,6 +334,32 @@ class DefensioWP
         if($approved_value == '0' )
             wp_notify_moderator($comment->comment_ID); 
     }
+
+    /**
+     * Receives a comment and  a string or null and returns  either the modified comment or NULL if the comment was deleted
+     * @param object $comment the comment
+     * @param string $profanity_action a string telling the method what to do or NULL for nothing 'off' analogous to NULL 'mask' call Defensio and
+     * mask the profanity with * 'delete' delete the comment and the Defensio meta-data
+    */
+    private function applyProfanityRules($comment, $profanity_action=NULL){
+
+        $result = $comment;
+
+        if($profanity_action == 'mask'){
+
+            $new_content = $this->filterProfanity($comment->comment_content);
+
+            if($new_content)
+                $result->comment_content = $new_content;
+
+        } elseif($profanity_action == 'delete'){
+            $this->defensio_db->deleteCommentAndDefensioRow($comment->comment_ID);
+            $result = NULL;
+        }
+
+        return $result;
+    }
+
 
     /** Calls postComment on any unprocessed comments */
     public function postUnprocessed()
@@ -401,7 +432,7 @@ class DefensioWP
 
                 $profanity_match = $row[0]->profanity_match;
 
-                if(get_option('defensio_filter_profanity') && $row[0]->profanity_match){
+                if(get_option('defensio_profanity_do') == 'mask' && $row[0]->profanity_match){
                     $comment = get_comment($row[0]->comment_ID);
                     $filtered_content = $this->filterProfanity($comment->comment_content);
 

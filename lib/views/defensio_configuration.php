@@ -45,10 +45,8 @@ function defensio_render_configuration_html($v) {
 			<?php defensio_render_delete_older_than_option($v); ?>
 
 			<h3><label>Profanity filter</label></h3>
-	<p>
-		<input type="hidden" name="defensio_filter_profanity_toggle" />
-		<input type="checkbox" name="defensio_filter_profanity" <?php if($v['filter_profanity'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
-		Remove profanity from comments content.
+  <p>
+  <?php defensio_render_profanity_option($v);?>
 	</p>
 
 			<h3>More options</h3>
@@ -144,11 +142,23 @@ function defensio_render_delete_older_than_option($v) { ?>
 <?php  
 		}
 ?>
-
+   <?php error_log("Older than days is: {$v['remove_older_than_days']} in the template. "); ?>
+   <?php error_log("Params from controller are :" . print_r($v, true) . "  "); ?>
 		<input type="hidden" name="defensio_remove_older_than_toggle" />
 		<input type="checkbox" name="defensio_remove_older_than" <?php if($v['remove_older_than'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
 		Automatically delete spam for articles older than <input type="text" name="defensio_remove_older_than_days" value="<?php echo $v['remove_older_than_days'] ?>" size="3" maxlength="3"/> days.
 	</p>
+<?php
+}
+
+function defensio_render_profanity_option($v){
+    $profanity_do = $v['profanity_do'];
+?>
+    
+    <input type="radio" name="defensio_profanity_do" value="off"   id="profanity_off"     <?php if($profanity_do == 'off') print('checked="1"') ?> /><label for="profanity_off">Off</label><br/>
+    <input type="radio" name="defensio_profanity_do" value="mask"  id="profanity_mask"    <?php if($profanity_do == 'mask') print('checked="1"') ?> /><label for="profanity_mask">Mask profanity words with * </label>  <br/>
+    <input type="radio" name="defensio_profanity_do" value="delete" id="profanity_delete" <?php if($profanity_do == 'delete') print('checked="1"') ?> /><label for="profanity_delete">Completely remove vulgar comments from my blog</label><br/> 
+
 <?php
 }
 ?>
