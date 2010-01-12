@@ -18,6 +18,8 @@ function defensio_render_quarantine_html($v) {
   			    echo "Your quarantine doesn't contain any spam pingbacks or trackbacks.";
   			elseif($v['type_filter'] == 'comments')
   			    echo "Your quarantine doesn't contain any spam comments.";
+  			elseif($v['type_filter'] == 'malicious')
+  			    echo "Your quarantine doesn't contain any malicious comments.";
   		    else 
   			    echo "Your quarantine doesn't contain any spam.";
 
@@ -142,6 +144,7 @@ function defensio_render_navigation_bar($v, $position) {
 					<option <?php if( $v['type_filter'] == "all") echo 'selected="1"'; ?> value="all">Show all comment types</option>
 					<option <?php if( $v['type_filter'] == "comments") echo 'selected="1"'; ?> value="comments">Comments</option>
 					<option <?php if( $v['type_filter'] == "pings") echo 'selected="1"'; ?> value="pings">Pings</option>
+					<option <?php if( $v['type_filter'] == "malicious") echo 'selected="1"'; ?> value="malicious">Malicious</option>
 				</select>
 				<input id="post-query-submit" class="button-secondary" type="submit" value="Filter"/>
 
@@ -183,8 +186,8 @@ TODO: update page links
 
 function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
         global $comment, $post;
-	$comment = $c;
-	$spaminess_class = defensio_class_for_spaminess($comment->spaminess);
+				$comment = $c;
+				$spaminess_class = defensio_class_for_spaminess($comment->spaminess);
         $post = get_post($comment->comment_post_ID);
         $authordata = get_userdata($post->post_author);
 	
@@ -208,15 +211,13 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
                 $ptime = sprintf( __('%s ago'), human_time_diff( $ptime ) );
         else
                 $ptime = mysql2date(__('Y/m/d \a\t g:i A'), $comment->comment_date );
+        $delete_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&p=$comment->comment_post_ID&c=$comment->id", "delete-comment_$comment->id" ) );
+        $approve_url = clean_url( wp_nonce_url( "comment.php?action=approvecomment&p=$comment->comment_post_ID&c=$comment->id", "approve-comment_$comment->id" ) );
+        $unapprove_url = clean_url( wp_nonce_url( "comment.php?action=unapprovecomment&p=$comment->comment_post_ID&c=$comment->id", "unapprove-comment_$comment->id" ) );
+        $spam_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&dt=spam&p=$comment->comment_post_ID&c=$comment->id", "delete-comment_$comment->id" ) );
 
-        $delete_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&p=$comment->comment_post_ID&c=$comment->comment_ID", "delete-comment_$comment->comment_ID" ) );
-        $approve_url = clean_url( wp_nonce_url( "comment.php?action=approvecomment&p=$comment->comment_post_ID&c=$comment->comment_ID", "approve-comment_$comment->comment_ID" ) );
-        $unapprove_url = clean_url( wp_nonce_url( "comment.php?action=unapprovecomment&p=$comment->comment_post_ID&c=$comment->comment_ID", "unapprove-comment_$comment->comment_ID" ) );
-        $spam_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&dt=spam&p=$comment->comment_post_ID&c=$comment->comment_ID", "delete-comment_$comment->comment_ID" ) );
-
-        echo "<tr id='comment-$comment->comment_ID' class='spam $spaminess_class'>";
+        echo "<tr id='comment-$comment->id' class='spam $spaminess_class'>";
         $columns = get_column_headers('edit-comments');
-	error_log(print_r($columns, true));
         
         $hidden = (array) get_user_option( 'manage-comment-columns-hidden' );
         foreach ( $columns as $column_name => $column_display_name ) {
@@ -232,24 +233,27 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
                         case 'cb':
                                 if ( !$checkbox ) break;
                                 echo '<th scope="row" class="check-column">';
-                                if ( current_user_can('edit_post', $comment->comment_post_ID) ) echo "<input type='checkbox' name='delete_comments[]' value='$comment->comment_ID' />";
+                                if ( current_user_can('edit_post', $comment->comment_post_ID) ) echo "<input type='checkbox' name='delete_comments[]' value='$comment->id' />";
                                 echo '</th>';
                                 break;
                         case 'comment':
                                 echo "<td $attributes>"; 
 
 				echo '<div id="submitted-on">';
-				printf(__('Submitted on <a href="%1$s">%2$s at %3$s</a>'), get_comment_link($comment->comment_ID), get_comment_date(__('Y/m/d')), get_comment_date(__('g:ia')));
+				printf(__('Submitted on <a href="%1$s">%2$s at %3$s</a>'), get_comment_link($comment->id), get_comment_date(__('Y/m/d')), get_comment_date(__('g:ia')));
 				echo '</div>';
 
 
 ?>
-																
 																<p class="defensio_body_shrunk" id="<?php echo "defensio_body_" . $comment->id; ?>">
 																	<?php echo ($comment->comment_content) ?>
-																</p>
+                                </p>
 
-                                <div id="inline-<?php echo $comment->comment_ID; ?>" class="hidden">
+																<?php if($c->classification == 'malicious'): ?> 
+                                <span class="malicious_label"><strong>Warning:</strong> Contains malicious content</span>
+                                <?php endif; ?>
+
+                                <div id="inline-<?php echo $comment->id; ?>" class="hidden">
                                 <textarea class="comment" rows="3" cols="10"><?php echo $comment->comment_content; ?></textarea>
                                 <div class="author-email"><?php echo attribute_escape( $comment->comment_author_email ); ?></div>
                                 <div class="author"><?php echo attribute_escape( $comment->comment_author ); ?></div>
@@ -260,12 +264,12 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
                                 $actions = array();
 
                                 if ( current_user_can('edit_post', $comment->comment_post_ID) ) {
-																			  $actions['expand'] = "<a class='defensio_quarantine_action' id='defensio_view_full_comment_" . $comment->comment_ID . "' href='#' onclick=\"javascript:defensio_toggle_height('" . $comment->id . "');return false;\">View full comment</a>";
-                                        $actions['approve'] = "<a href='$approve_url' class='dim:the-comment-list:comment-$comment->comment_ID:unapproved:e7e7d3:e7e7d3:new=approved vim-a' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
-                                        $actions['approve'] = "<a href='$approve_url' class='delete:the-comment-list:comment-$comment->comment_ID:e7e7d3:action=dim-comment vim-a vim-destructive' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
-                                        $actions['delete'] = "<a href='$delete_url' class='delete:the-comment-list:comment-$comment->comment_ID delete vim-d vim-destructive'>" . __('Delete') . '</a>';
-                                        $actions['edit'] = "<a href='comment.php?action=editcomment&amp;c={$comment->comment_ID}' title='" . __('Edit comment') . "'>". __('Edit') . '</a>';
-                                        //$actions['quickedit'] = '<a onclick="commentReply.open(\''.$comment->comment_ID.'\',\''.$post->ID.'\',\'edit\');return false;" class="vim-q" title="'.__('Quick Edit').'" href="#">' . __('Quick&nbsp;Edit') . '</a>';
+																			  $actions['expand'] = "<a class='defensio_quarantine_action' id='defensio_view_full_comment_" . $comment->id . "' href='#' onclick=\"javascript:defensio_toggle_height('" . $comment->id . "');return false;\">View full comment</a>";
+                                        $actions['approve'] = "<a href='$approve_url' class='dim:the-comment-list:comment-$comment->id:unapproved:e7e7d3:e7e7d3:new=approved vim-a' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
+                                        $actions['approve'] = "<a href='$approve_url' class='delete:the-comment-list:comment-$comment->id:e7e7d3:action=dim-comment vim-a vim-destructive' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
+                                        $actions['delete'] = "<a href='$delete_url' class='delete:the-comment-list:comment-$comment->id delete vim-d vim-destructive'>" . __('Delete') . '</a>';
+                                        $actions['edit'] = "<a href='comment.php?action=editcomment&amp;c={$comment->id}' title='" . __('Edit comment') . "'>". __('Edit') . '</a>';
+                                        //$actions['quickedit'] = '<a onclick="commentReply.open(\''.$comment->id.'\',\''.$post->ID.'\',\'edit\');return false;" class="vim-q" title="'.__('Quick Edit').'" href="#">' . __('Quick&nbsp;Edit') . '</a>';
 																				$actions['details'] = "<span id='defensio_more_details_" . $comment->id . "' class='defensio_more_details'><a href='#' onclick=\"javascript:$('defensio_more_details_" . $comment->id . "').removeClassName('defensio_more_details').update('Signature: $comment->signature | Spaminess: " . number_format($comment->spaminess * 100, 0) . "%');return false;\">Details</a></span>";
                                         $actions = apply_filters( 'comment_row_actions', $actions, $comment );
 
@@ -407,18 +411,18 @@ if($v['stats'] and $v['authenticated']) :
 	<h2>Statistics</h2>
 	<div class="defensio_stats">
 
-<?php 		if(isset($v['stats']['learning']) and $v['stats']['learning'] == true ) { ?>
-				<h3 class="defensio_learning"><?php echo $v['stats']['learning-status'] ?></h3>
-<?php		} ?>
-				<ul>
-					<li><strong>Recent accuracy: <?php echo number_format( $v['stats']['accuracy'] * 100, 2, '.', '')  ?>%</strong></li>
-					<li><?php echo $v['stats']['spam']?> spam</li>
-					<li><?php echo $v['stats']['ham']?> legitimate comments</li>
-					<li><?php echo $v['stats']['false-negatives']?> false negatives (undetected spam)</li>
-					<li><?php echo $v['stats']['false-positives']?> false positives (legitimate comments identified as spam)</li>
-				</ul>
-		
-        </div>
+<?php if(isset($v['stats']->learning) and $v['stats']->learning == 'true' ) { ?>
+	<h3 class="defensio_learning"><?php echo $v['stats']->{'learning-status'} ?></h3>
+<?php } ?>
+	<ul>
+		<li><strong>Recent accuracy: <?php echo number_format( ((float)$v['stats']->accuracy) * 100, 2, '.', '')  ?>%</strong></li>
+		<li><?php echo $v['stats']->unwanted->spam ?> spam</li>
+		<li><?php echo empty($v['stats']->unwanted->malicious) ? 'Malicious content detection not enabled' : ($v['stats']->unwanted->malicious) . ' malicious comments' ?></li>
+		<li><?php echo $v['stats']->legitimate->total ?> legitimate comments</li>
+		<li><?php echo $v['stats']->{ 'false-negatives' } ?> false negatives (undetected spam)</li>
+		<li><?php echo $v['stats']->{ 'false-positives' } ?> false positives (legitimate comments identified as undesired)</li>
+	</ul>
+	</div>
 	<div class="defensio_more_stats">
 		<h3>There's more!</h3>
 			<p>For more detailed statistics (and gorgeous charts), please visit your Defensio <a href="http://defensio.com/manage/stats/<?php echo $v['api_key']?>" target="_blank">Account Management</a> panel.</p>

@@ -44,8 +44,18 @@ function defensio_render_configuration_html($v) {
 			<h3><label>Automatic removal of spam</label></h3>
 			<?php defensio_render_delete_older_than_option($v); ?>
 
+			<h3><label>Profanity filter</label></h3>
+  <p>
+  <?php defensio_render_profanity_option($v);?>
+	</p>
+
+			<h3>More options</h3>
+			<p>You can modify more advanced options in your <a href="http://defensio.com/manage/options/<?php echo $v['key']?>" target="_blank">Defensio control panel</a>.</p>
+			
 			<input type="submit" class="button" value="Save settings">
 		</form>
+		
+		
 <?php
 	}
 
@@ -59,12 +69,12 @@ function defensio_render_configuration_html($v) {
 function defensio_render_key_validity($v) {
 	if($v['valid']) { 
 ?>
-		<p style="padding: .5em; background-color: #2d2; color: #fff;font-weight: bold;">This key is valid.</p>
+		<p style="padding: .5em; background-color: #2d2; color: #fff;font-weight: bold;">Your API key is valid.</p>
 <?php 
 	} else { 
 		if(!isset($v['defensio_post_error_code'])) {
 ?>
-    <p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">The key you entered is invalid  .</p>
+    <p style="padding: .5em; background-color: #d22; color: #fff; font-weight: bold;">Could not validate your API key.</p>
 
 <?php 
 		} else {
@@ -79,16 +89,13 @@ function defensio_render_key_validity($v) {
 }
 
 function defensio_post_error_code_to_string($code) {
-	// Codes greater than 100, http codes, if not 401 or 200 
-        // that is unexpected
 	if ($code >= 100) {
-		 return 'Unexpected HTTP code';
-	// Snoopy returns -100 on http timeout, no timeout creating the socket
-	} elseif ($code == -100){
-		return "Timeout when connecting to Defensio server";
-        // The rest should be socket errors
+		 return 'Unexpected HTTP code ($code).';
+	} elseif ($code == -100) {
+		return "Timeout when connecting to Defensio's API server.";
+	// The rest should be socket errors
 	} else {
-		return "Couldn't open a external connection, check your configuration or contact your hosting provider.";
+		return "Could not open a connection to Defensio. Please check your configuration or contact your hosting provider to determine if outbound HTTP connections are supported.";
 	}
 }
 
@@ -135,11 +142,23 @@ function defensio_render_delete_older_than_option($v) { ?>
 <?php  
 		}
 ?>
-
+   <?php error_log("Older than days is: {$v['remove_older_than_days']} in the template. "); ?>
+   <?php error_log("Params from controller are :" . print_r($v, true) . "  "); ?>
 		<input type="hidden" name="defensio_remove_older_than_toggle" />
 		<input type="checkbox" name="defensio_remove_older_than" <?php if($v['remove_older_than'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
 		Automatically delete spam for articles older than <input type="text" name="defensio_remove_older_than_days" value="<?php echo $v['remove_older_than_days'] ?>" size="3" maxlength="3"/> days.
 	</p>
+<?php
+}
+
+function defensio_render_profanity_option($v){
+    $profanity_do = $v['profanity_do'];
+?>
+    
+    <input type="radio" name="defensio_profanity_do" value="off"   id="profanity_off"     <?php if($profanity_do == 'off') print('checked="1"') ?> /> <label for="profanity_off">Off</label><br/>
+    <input type="radio" name="defensio_profanity_do" value="mask"  id="profanity_mask"    <?php if($profanity_do == 'mask') print('checked="1"') ?> /> <label for="profanity_mask">Mask profanity words with * </label>  <br/>
+    <input type="radio" name="defensio_profanity_do" value="delete" id="profanity_delete" <?php if($profanity_do == 'delete') print('checked="1"') ?> /> <label for="profanity_delete">Completely remove vulgar comments from my blog</label><br/> 
+
 <?php
 }
 ?>

@@ -13,8 +13,8 @@ function defensio_render_warning_styles() {
 ?>
 	<style type="text/css" media="screen">
 		#adminmenu { margin-bottom: 6em; }
-		#adminmenu.large { margin-bottom: 8.5em; }
-		<?php echo defensio_warning_style(); ?>
+    #adminmenu.large { margin-bottom: 8.5em; }
+    #defensio_warning { position: absolute; top: 11.5em; }
 		#defensio_warning_controls_wrap { width:auto; margin-bottom:3px; display:none; }
 		#defensio_warning p.defensio_error { color: red; }
 		#defensio_warning p.defensio_success { color: green; }
