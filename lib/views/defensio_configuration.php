@@ -155,9 +155,9 @@ function defensio_render_profanity_option($v){
     $profanity_do = $v['profanity_do'];
 ?>
     
-    <input type="radio" name="defensio_profanity_do" value="off"   id="profanity_off"     <?php if($profanity_do == 'off') print('checked="1"') ?> /><label for="profanity_off">Off</label><br/>
-    <input type="radio" name="defensio_profanity_do" value="mask"  id="profanity_mask"    <?php if($profanity_do == 'mask') print('checked="1"') ?> /><label for="profanity_mask">Mask profanity words with * </label>  <br/>
-    <input type="radio" name="defensio_profanity_do" value="delete" id="profanity_delete" <?php if($profanity_do == 'delete') print('checked="1"') ?> /><label for="profanity_delete">Completely remove vulgar comments from my blog</label><br/> 
+    <input type="radio" name="defensio_profanity_do" value="off"   id="profanity_off"     <?php if($profanity_do == 'off') print('checked="1"') ?> /> <label for="profanity_off">Off</label><br/>
+    <input type="radio" name="defensio_profanity_do" value="mask"  id="profanity_mask"    <?php if($profanity_do == 'mask') print('checked="1"') ?> /> <label for="profanity_mask">Mask profanity words with * </label>  <br/>
+    <input type="radio" name="defensio_profanity_do" value="delete" id="profanity_delete" <?php if($profanity_do == 'delete') print('checked="1"') ?> /> <label for="profanity_delete">Completely remove vulgar comments from my blog</label><br/> 
 
 <?php
 }
