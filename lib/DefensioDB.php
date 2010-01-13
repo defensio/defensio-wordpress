@@ -1,7 +1,9 @@
 <?php
 
-if(defined('ABSPATH'))
+if(defined('ABSPATH')){
+    require_once(ABSPATH . 'wp-includes/pluggable.php'); // Avoid wp_get_current_user() being not defined in MU
     require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
+}
 /* 
  * Abstract most of the necessary database work for Defensio's plugin
  * @package Defensio
