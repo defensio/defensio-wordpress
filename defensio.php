@@ -3,7 +3,7 @@
  * Plugin Name: Defensio Anti-Spam
  * Plugin URI: http://defensio.com/
  * Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors as well to those of your readers and commenters.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?&gt;</code> in your template.
- * Version: 2.5.1
+ * Version: 2.5.2
  * Author: Websense, Inc.
  * Author URI: http://defensio.com
  *
@@ -422,15 +422,11 @@ add_action('pre_comment_approved', 'defensio_pre_comment_approved');
 function defensio_defer_training($id, $new_status = null) {
     global $defensio_retraining, $wpdb, $defensio_db, $defensio_manager;
 
-    // 'approve' should only be retrained when a message is being marked as SPAM
-    if (!(($new_status == 'approve' and $defensio_retraining) or $new_status == 'spam' or $new_status == null  )) {
-        return;
-    }
-
     $comment = $wpdb->get_row("SELECT * FROM $wpdb->comments NATURAL JOIN $wpdb->prefix" . "defensio WHERE $wpdb->comments.comment_ID = '$id'");
 
-    if (!$comment) { return; 
-    }
+    if (!$comment) return; 
+    // we only care about changes on comments being approved when they used to be spam
+    if ($new_status == 'approve' and $comment->approved != 'spam') return; 
 
     if ($comment->comment_approved == 'spam' and isset($new_status) ) {
 

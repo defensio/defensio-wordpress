@@ -267,7 +267,7 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 																			  $actions['expand'] = "<a class='defensio_quarantine_action' id='defensio_view_full_comment_" . $comment->id . "' href='#' onclick=\"javascript:defensio_toggle_height('" . $comment->id . "');return false;\">View full comment</a>";
                                         $actions['approve'] = "<a href='$approve_url' class='dim:the-comment-list:comment-$comment->id:unapproved:e7e7d3:e7e7d3:new=approved vim-a' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
                                         $actions['approve'] = "<a href='$approve_url' class='delete:the-comment-list:comment-$comment->id:e7e7d3:action=dim-comment vim-a vim-destructive' title='" . __( 'Approve this comment' ) . "'>" . __( 'Approve' ) . '</a>';
-                                        $actions['delete'] = "<a href='$delete_url' class='delete:the-comment-list:comment-$comment->id delete vim-d vim-destructive'>" . __('Delete') . '</a>';
+                                        $actions['delete'] = "<a href='$delete_url' class='delete:the-comment-list:comment-$comment->id::delete=1 delete vim-d vim-destructive'>" . __('Delete') . '</a>';
                                         $actions['edit'] = "<a href='comment.php?action=editcomment&amp;c={$comment->id}' title='" . __('Edit comment') . "'>". __('Edit') . '</a>';
                                         //$actions['quickedit'] = '<a onclick="commentReply.open(\''.$comment->id.'\',\''.$post->ID.'\',\'edit\');return false;" class="vim-q" title="'.__('Quick Edit').'" href="#">' . __('Quick&nbsp;Edit') . '</a>';
 																				$actions['details'] = "<span id='defensio_more_details_" . $comment->id . "' class='defensio_more_details'><a href='#' onclick=\"javascript:$('defensio_more_details_" . $comment->id . "').removeClassName('defensio_more_details').update('Signature: $comment->signature | Spaminess: " . number_format($comment->spaminess * 100, 0) . "%');return false;\">Details</a></span>";
@@ -357,9 +357,8 @@ function defensio_render_spam_list($v) {
 		</tfoot>
 		
 		<tbody id="the-comment-list" class="list:comment">
-		
+		    <?php call_user_func($function_name, $v); ?>
 		</tbody>
-		<?php call_user_func($function_name, $v); ?>
 	</table>
 	<?php
 }
@@ -447,6 +446,5 @@ function defensio_page_navigation_links($v){
 	));
 	
 }
-
 
 ?>
