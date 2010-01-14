@@ -142,8 +142,6 @@ function defensio_render_delete_older_than_option($v) { ?>
 <?php  
 		}
 ?>
-   <?php error_log("Older than days is: {$v['remove_older_than_days']} in the template. "); ?>
-   <?php error_log("Params from controller are :" . print_r($v, true) . "  "); ?>
 		<input type="hidden" name="defensio_remove_older_than_toggle" />
 		<input type="checkbox" name="defensio_remove_older_than" <?php if($v['remove_older_than'] == 1) { echo 'checked="1"'; } ?> size="3" maxlength="3"/>
 		Automatically delete spam for articles older than <input type="text" name="defensio_remove_older_than_days" value="<?php echo $v['remove_older_than_days'] ?>" size="3" maxlength="3"/> days.
