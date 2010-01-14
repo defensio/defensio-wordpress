@@ -422,15 +422,11 @@ add_action('pre_comment_approved', 'defensio_pre_comment_approved');
 function defensio_defer_training($id, $new_status = null) {
     global $defensio_retraining, $wpdb, $defensio_db, $defensio_manager;
 
-    // 'approve' should only be retrained when a message is being marked as SPAM
-    if (!(($new_status == 'approve' and $defensio_retraining) or $new_status == 'spam' or $new_status == null  )) {
-        return;
-    }
-
     $comment = $wpdb->get_row("SELECT * FROM $wpdb->comments NATURAL JOIN $wpdb->prefix" . "defensio WHERE $wpdb->comments.comment_ID = '$id'");
 
-    if (!$comment) { return; 
-    }
+    if (!$comment) return; 
+    // we only care about changes on comments being approved when they used to be spam
+    if ($new_status == 'approve' and $comment->approved != 'spam') return; 
 
     if ($comment->comment_approved == 'spam' and isset($new_status) ) {
 
