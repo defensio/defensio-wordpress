@@ -152,12 +152,8 @@ class DefensioDB
     public function deleteCommentAndDefensioRow($comment_ID)
     {
         global $wpdb;
-        $wpdb->query(
-            $wpdb->prepare("DELETE $this->table_name.* FROM  $this->table_name NATURAL JOIN $wpdb->comments 
-            WHERE comment_ID = %d", $comment_ID)
-        );
-
-        $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->comments WHERE comment_approved = %d", $comment_ID));
+        $wpdb->query($wpdb->prepare("DELETE FROM $this->table_name WHERE comment_ID = %d", $comment_ID));
+        $wpdb->query($wpdb->prepare("DELETE FROM $wpdb->comments   WHERE comment_ID = %d", $comment_ID));
     }
 
     /* Deletes all comments marked as spam and their Defensio metadata*/
