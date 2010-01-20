@@ -110,3 +110,21 @@ Visit our FAQ at [http://defensio.com/faq](http://defensio.com/faq)
 == Need Help? ==
  
 Visit our user forum at [http://forum.defensio.com](http://forum.defensio.com)
+
+
+== Changelog ==
+
+= 2.5.4 (unreleased) =
+* Moved CHANGELOG.txt to readme.txt for better Wordpress.org/extend compatibility
+
+= 2.5.3 (01-14-2010) =
+* Fixed bug causing admins to sometimes being notified of spam by email
+
+= 2.5.2 (01-14-2010) =
+* Fixed comment deletion bug
+
+= 2.5.1 (01-13-2010) =
+* Fixed bug that prevented plugin from working on MU
+
+= 2.5.0 (01-12-2010) =
+* Initial release supporting Defensio 2.0
