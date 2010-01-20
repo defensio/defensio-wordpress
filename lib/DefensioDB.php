@@ -1,7 +1,6 @@
 <?php
 
-if(defined('ABSPATH')){
-    require_once(ABSPATH . 'wp-includes/pluggable.php'); // Avoid wp_get_current_user() being not defined in MU
+if(defined('ABSPATH') && function_exists('wp_get_current_user')){
     require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
 }
 /* 
@@ -148,7 +147,7 @@ class DefensioDB
         $wpdb->insert($this->table_name, $values, $types);
     }
 
-    /* Deletes a comment along with its defensio metadata */
+    /* Deletes a comment along with its Defensio metadata */
     public function deleteCommentAndDefensioRow($comment_ID)
     {
         global $wpdb;
