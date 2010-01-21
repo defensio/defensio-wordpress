@@ -100,6 +100,8 @@ the images directory.  Be careful to follow the naming convention we already hav
 Defensio does not work with Wordpress 2.9 due to a known Wordpress bug (http://core.trac.wordpress.org/ticket/11505).
 This bug has been fixed in Wordpress 2.9.1, so make sure to update your installation before using Defensio.
 
+PHP 5 is also required. This plugin will NOT work with PHP 4.
+
  
 == Frequently Asked Questions ==
  
