@@ -164,7 +164,8 @@ class DefensioWP
             'author-name'  => $userdata->user_login,
             'author-email' => $userdata->user_email,
             'type'         => 'article',
-            'platform'     => self::PLATFORM_NAME
+            'platform'     => self::PLATFORM_NAME,
+            'author-trusted' => 'true'
         );
 
         $this->defensio_client->postDocument($params);
