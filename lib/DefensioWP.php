@@ -168,7 +168,13 @@ class DefensioWP
             'author-trusted' => 'true'
         );
 
-        $this->defensio_client->postDocument($params);
+        try{ 
+            $this->defensio_client->postDocument($params);
+        }
+        // Silently rescue connection errors, not much the plugin can do in these cases
+        catch(DefensioConnectionTimeout $ex){ ; }
+        catch(DefensioUnexpectedHTTPStatus $ex){ ; }
+
     }
 
     /**
