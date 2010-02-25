@@ -13,9 +13,18 @@ function defensio_set_key()
     if (isset ($defensio_conf['key'])) {
         $defensio_conf['hckey'] = true;
     } else {
-        $defensio_conf['key'] = trim(get_option('defensio_key'));
+        $defensio_conf['key'] = trim(get_option(defensio_user_unique_option_key('defensio_key')));
+    }
+
+    if(!($defensio_conf['key'])){
+        $old_global_key = get_option('defensio_key');
+        if($old_global_key){
+            update_option(defensio_user_unique_option_key('defensio_key'), $old_global_key);
+            $defensio_conf['key'] = $old_global_key;
+        }
     }
 
 }
+
 
 ?>

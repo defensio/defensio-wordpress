@@ -60,8 +60,8 @@ class DefensioWP
     }
 
     /**
-     *  Will change return true if that key is valid
-     *  @param string $key the candidate key
+     * Will change return true if that key is valid
+     * @param string $key the candidate key
      */
     public function verifyKey($key, &$err_code)
     {
@@ -158,13 +158,13 @@ class DefensioWP
 
         $article = get_post($article_id);
         $params = array (
-            'content'      => $article->post_content, 
-            'title'        => $article->post_title, 
-            'permalink'    => get_permalink($article->ID),
-            'author-name'  => $userdata->user_login,
-            'author-email' => $userdata->user_email,
-            'type'         => 'article',
-            'platform'     => self::PLATFORM_NAME,
+            'content'        => $article->post_content, 
+            'title'          => $article->post_title, 
+            'permalink'      => get_permalink($article->ID),
+            'author-name'    => $userdata->user_login,
+            'author-email'   => $userdata->user_email,
+            'type'           => 'article',
+            'platform'       => self::PLATFORM_NAME,
             'author-trusted' => 'true'
         );
 
@@ -178,8 +178,12 @@ class DefensioWP
     }
 
     /**
-     * POSTs a comment to Defensio this will create a document entry, and Defensio will notify callback.php of the result.
-     * In case callback.php is not notified a GET request will be send to Defensio inquiring about the result.
+     * POSTs a comment to Defensio. This will create a document entry, identified by a singature, in Defensio's server,
+     * once the  document entry is processed by Defensio it will contain Defensio's classification and meta data (eg spaminess)
+     * about this comment.
+     *
+     * NOTE: Defensio should notify callback.php of the result. In case callback.php is never 
+     * notified a GET request must be send to Defensio inquiring about the result.
      *
      * @param integer $id value of comment_ID for the comment being posted
      * @param boolean $retrying 
@@ -234,7 +238,7 @@ class DefensioWP
     }
 
     /** 
-     *   To be called in the pre-approve hook makes anything not automatically approved self::DEFENSIO_PENDING_STATUS
+     * To be called in the pre-approve hook makes anything not automatically approved self::DEFENSIO_PENDING_STATUS
      * @param string $approved_value passed by the pre-comment-approved hook
      */
     public function preApproval($approved_value, $user_ID)
@@ -347,7 +351,7 @@ class DefensioWP
      * @param object $comment the comment
      * @param string $profanity_action a string telling the method what to do or NULL for nothing 'off' analogous to NULL 'mask' call Defensio and
      * mask the profanity with * 'delete' delete the comment and the Defensio meta-data
-    */
+     */
     private function applyProfanityRules($comment, $profanity_action=NULL){
 
         $result = $comment;
@@ -383,9 +387,9 @@ class DefensioWP
     }
 
     /**
-    * Receives a parsed Defensio result, useful when reading a callback from Defensio 
-    * @param object $result a parsed Defensio result
-    */
+     * Receives a parsed Defensio result, useful when reading a callback from Defensio 
+     * @param object $result a parsed Defensio result
+     */
     public function applyCallbackResult($result)
     {
         $comment = $this->defensio_db->getDefensioRowBySignature($result->signature);
@@ -395,9 +399,9 @@ class DefensioWP
     }
 
     /**
-    * Will PUT a new allow value to Defensio and keep the Defensio DB
-    * in sync with the moderators criteria for spam/ham
-    */
+     * Will PUT a new allow value to Defensio and keep the Defensio DB
+     * in sync with the moderators criteria for spam/ham
+     */
     private function retrain($new_value, $signatures)
     {
         if ( !is_array($signatures))
