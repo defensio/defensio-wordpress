@@ -133,7 +133,7 @@ function defensio_render_navigation_bar($v, $position) {
 			<input id="doaction" class="button-secondary apply" type="submit" value="Apply" name="doaction" />
 		<?php else: ?>
 			<input id="doaction2" class="button-secondary apply" type="submit" value="Apply" name="doaction2" />
-		<?endif;?>
+		<?php endif;?>
 
 
 			<?php wp_nonce_field('bulk-comments'); ?>
