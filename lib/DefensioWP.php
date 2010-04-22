@@ -73,7 +73,7 @@ class DefensioWP
             $out = TRUE;
 
         } else {
-            $this->defensio_client = new Defensio($key);
+            $this->defensio_client = new Defensio($key, self::CLIENT_ID);
 
             try{
                 $out = (200 == array_shift($this->defensio_client->getUser()));

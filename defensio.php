@@ -406,28 +406,6 @@ function defensio_admin_head() {
     wp_enqueue_script('admin-forms');
 }
 
-/** 
- * Add action only if a proper defensio API key has been set otherwise don't try to filter comments
- * it won't work
- */
-function defensio_add_action($tag, $function_name, $priority=10, $accepted_args = 1 ) {
-    if(defensio_is_key_set())
-    {
-        add_action($action, $function_name, $priority, $accepted_args);
-    }
-}
-
-/** 
- * Add filter only if a proper defensio API key has been set otherwise don't try to filter comments
- * it won't work
- */
-function defensio_add_filter($tag, $function_name, $priority=10, $accepted_args = 1 ) {
-    if(defensio_is_key_set())
-    {
-        add_filter($action, $function_name, $priority, $accepted_args);
-    }
-}
-
 /**
  * Posts a comment to Defensio
  *
@@ -439,13 +417,13 @@ function defensio_send_comment($comment_ID, $wp_status = NULL ) {
 
     $defensio_manager->postComment($comment_ID);
 }
-defensio_add_action('comment_post', 'defensio_send_comment');
+add_action('comment_post', 'defensio_send_comment');
 
 function defensio_pre_comment_approved($approved) {
     global $defensio_manager, $user_ID;
     return $defensio_manager->preApproval($approved, $user_ID);
 }
-defensio_add_action('pre_comment_approved', 'defensio_pre_comment_approved');
+add_action('pre_comment_approved', 'defensio_pre_comment_approved');
 
 /* To train multiple messages at once, we push them into an array and process them in the shutdown hook. */
 function defensio_defer_training($id, $new_status = NULL) {
@@ -475,8 +453,8 @@ function defensio_defer_training($id, $new_status = NULL) {
         }
     }
 }
-defensio_add_action('wp_set_comment_status', 'defensio_defer_training', 10, 2);
-defensio_add_action('edit_comment', 'defensio_defer_training', 10, 1);
+add_action('wp_set_comment_status', 'defensio_defer_training', 10, 2);
+add_action('edit_comment', 'defensio_defer_training', 10, 1);
 
 function defensio_announce_article($id) {
     global $wpdb, $userdata, $defensio_manager;
@@ -484,7 +462,7 @@ function defensio_announce_article($id) {
     get_currentuserinfo();
     $defensio_manager->postArticle($id, $userdata);
 }
-defensio_add_action('publish_post', 'defensio_announce_article');
+add_action('publish_post', 'defensio_announce_article');
 
 /** To be used with admin-ajax */
 function defensio_restore() {
@@ -498,8 +476,8 @@ function defensio_restore() {
     } 
 }
 
-defensio_add_action('wp_ajax_defensio-restore', 'defensio_restore');
-defensio_add_filter('comment_spam_to_approved', create_function('$comment', 'defensio_set_status_approved($comment->comment_ID);'));
+add_action('wp_ajax_defensio-restore', 'defensio_restore');
+add_filter('comment_spam_to_approved', create_function('$comment', 'defensio_set_status_approved($comment->comment_ID);'));
 
 function defensio_set_status_approved($id) {
     global $defensio_retraining, $defensio_db, $defensio_manager;
@@ -612,7 +590,7 @@ function defensio_finalize() {
         $defensio_manager->submitHam($defensio_manager->deferred_spam_to_ham);
     }
 }
-defensio_add_action('shutdown', 'defensio_finalize');
+add_action('shutdown', 'defensio_finalize');
 
 function defensio_render_activity_box() {
     global $defensio_db;
