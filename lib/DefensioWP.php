@@ -45,18 +45,29 @@ class DefensioWP
 
     /** 
      * Get stats for this user, try wp_cache first then load from Defensio server unlike the cache in Defensio's
-     * counter widget this method relies on WordPresse's own object cache
+     * counter widget this method relies on WordPresse's own object cache.
+     * 
+     * Since PHP 5.3.2 serialization of a SimpleXML object will throw an exception, from now on we store only
+     * raw strings in the cache and parse them everytime, should not be a problem since the xml Defensio results
+     * are fairly small.
+     * 
      */
     public function getStats()
     {
-        $stats = wp_cache_get('stats', 'defensio');
+        $stats_str = wp_cache_get('stats', 'defensio');
+        $stats_obj = NULL;
 
-        if (!$stats) { 
-            $stats = $this->refreshStats();
-            wp_cache_set('stats' , $stats, 'defensio', 600);
+        if ($stats_str === FALSE) { 
+            $stats_obj = $this->refreshStats();
+
+            if (is_object($stats_obj))
+                wp_cache_set('stats' , $stats_obj->asXML(), 'defensio', 600);
+
+        } else {
+            $stats_obj = simplexml_load_string($stats_str);
         }
 
-        return $stats;
+        return $stats_obj;
     }
 
     /**
@@ -141,7 +152,7 @@ class DefensioWP
         $out = FALSE;
 
         try{
-            $res =  $this->defensio_client->getBasicStats();
+            $res = $this->defensio_client->getBasicStats();
             $out = $res[1];
         } catch(DefensioError $ex){/*NO OP*/} 
 
