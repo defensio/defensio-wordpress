@@ -9,9 +9,9 @@ function defensio_render_quarantine_html($v) {
 		<form method="post" id="comments-form">
   		<?php defensio_render_navigation_bar($v, "top"); ?>
   		<?php 
-  		if($v['spam_count'] > 0):
+  		 if($v['spam_count'] > 0){
   			defensio_render_spam_list($v); 
-  		else: ?>
+  		} else { ?>
   	    <br />
   	    <p id="defensio_quarantine_empty"> 
           <?php if($v['type_filter'] == 'trackbacks')
@@ -27,7 +27,7 @@ function defensio_render_quarantine_html($v) {
   			    echo " However, you are hiding " . $v['obvious_spam_count'] . " obvious spam messages.";
           ?>
         </p>
-  		<?php endif;?>
+ 			  <?php }?>
   		<?php defensio_render_navigation_bar($v, "bottom"); ?>
 		</form>
 		<br class="clear" /><br class="clear" />
@@ -129,11 +129,11 @@ function defensio_render_navigation_bar($v, $position) {
 				<option value="emptyquarantine">Empty quarantine</option>
 			</select>
 
-		<?php if($position == 'top'): ?>
+		<?php if($position == 'top'){ ?>
 			<input id="doaction" class="button-secondary apply" type="submit" value="Apply" name="doaction" />
-		<?php else: ?>
+		<?php } else { ?>
 			<input id="doaction2" class="button-secondary apply" type="submit" value="Apply" name="doaction2" />
-		<?php endif;?>
+		<?php } ?>
 
 
 			<?php wp_nonce_field('bulk-comments'); ?>
@@ -249,9 +249,9 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 																	<?php echo ($comment->comment_content) ?>
                                 </p>
 
-																<?php if($c->classification == 'malicious'): ?> 
+                                <?php if($c->classification == 'malicious'){ ?> 
                                 <span class="malicious_label"><strong>Warning:</strong> Contains malicious content</span>
-                                <?php endif; ?>
+                                <?php } ?>
 
                                 <div id="inline-<?php echo $comment->id; ?>" class="hidden">
                                 <textarea class="comment" rows="3" cols="10"><?php echo $comment->comment_content; ?></textarea>
@@ -405,7 +405,7 @@ function defensio_render_spam_list_sorted_by_comment_date($v) {
 
 
 function defensio_render_stats($v) { 
-if($v['stats'] and $v['authenticated']) :
+	if($v['stats'] and $v['authenticated']) {
 ?>
 	<h2>Statistics</h2>
 	<div class="defensio_stats">
@@ -429,11 +429,11 @@ if($v['stats'] and $v['authenticated']) :
 
 	<div style="clear:both"></div>
 <?php 
-	else:
+	 } else {
 ?>
 		<p>Statistics could not be retrieved, please check back later.</p>
 <?php
-	 endif;
+	}
 }
 
 
