@@ -3,8 +3,8 @@ Contributors: karabunga
 Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
-Tested up to: 2.9.1
-Stable tag: 2.5.3
+Tested up to: 3.0
+Stable tag: 2.5.5
  
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
  
@@ -115,6 +115,11 @@ Visit our user forum at [http://forum.defensio.com](http://forum.defensio.com)
 
 
 == Changelog ==
+
+= 2.5.5 (06-17-2010) =
+* Fixed bug causing a PHP crash on some configurations
+* A few minor fixes
+* Support for Wordpress 3.0
 
 = 2.5.4 (unreleased) =
 * Moved CHANGELOG.txt to readme.txt for better Wordpress.org/extend compatibility
