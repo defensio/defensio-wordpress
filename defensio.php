@@ -154,7 +154,7 @@ function defensio_configuration() {
 
         if ($defensio_manager->verifyKey($defensio_conf['key'], $err_code)) {
             $valid = true;
-            update_option('defensio_key', $key);
+            update_option('defensio_key', $defensio_conf['key']);
         } else {
             $valid = false;
         }
