@@ -26,7 +26,7 @@ class DefensioWP
     const UNPROCESSED   = 'unprocessed';
     const PENDING       = 'pending';
     const OK            = 'ok';
-    const CLIENT_ID     = 'Defensio for Wordpress | 2.0 | Websense Inc. | info@defensio.com';
+    const CLIENT_ID     = 'Defensio for Wordpress | 2.5.6 | Websense Inc. | info@defensio.com';
 
     /**
      * @param string $api_key A Defensio API key
@@ -234,7 +234,7 @@ class DefensioWP
             /* if($data['status'] == self::UNPROCESSED)
                 wp_update_comment(array('comment_approved' => 0, 'comment_ID' => $id));
               else*/
-            // If not approved by comment should not be shown until defensio has seen it.
+            // If not approved by moderator comment should not be shown until defensio has seen it.
             wp_update_comment(array('comment_approved' => self::DEFENSIO_PENDING_STATUS, 'comment_ID' => $id));
 
         }
@@ -304,8 +304,8 @@ class DefensioWP
                 if($comment->comment_approved == self::DEFENSIO_PENDING_STATUS || $comment->comment_approved == 'spam')
                     $approval_value = $this->reApplyWPAllow((array)$comment);
 
-                elseif($comment->comment_approved == '1')
-                    $approval_value = '1';
+                elseif($comment->comment_approved == '1' || $comment->comment_approved == '0' )
+                    $approval_value = $comment->comment_approved;
 
 
                 $this->doApply($comment, $result, $approval_value, $profanity_action);
