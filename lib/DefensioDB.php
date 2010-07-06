@@ -1,8 +1,9 @@
 <?php
-
-if(defined('ABSPATH') && function_exists('wp_get_current_user')){
+/* Include update functions when necessary */
+if(defined('ABSPATH') && ( function_exists('wp_get_current_user') ||  array_shift(split('\.', $wp_version))) == 3 ){
     require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
 }
+
 /* 
  * Abstract most of the necessary database work for Defensio's plugin
  * @package Defensio
