@@ -536,7 +536,7 @@ function defensio_counter($color='dark', $align='left') {
 }
 
 function defensio_widget_register() {
-    if (function_exists('register_sidebar_widget')) {
+    if (function_exists('register_sidebar_widget') || function_exists('wp_register_sidebar_widget')) {
         function defensio_widget() { 
             $alignment = get_option('defensio_counter_alignment'); 
             $color = get_option('defensio_counter_color');
@@ -577,8 +577,14 @@ function defensio_widget_register() {
       </select>
 <?php
         }
-        register_sidebar_widget('Defensio Counter', 'defensio_widget', NULL, 'defensio');
-        register_widget_control('Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
+
+        if( function_exists('wp_register_sidebar_widget')){
+            wp_register_sidebar_widget('Defensio Counter', 'defensio_widget', NULL, 'defensio');
+            wp_register_widget_control('Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
+        } else {
+            register_sidebar_widget('Defensio Counter', 'defensio_widget', NULL, 'defensio');
+            register_widget_control('Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
+        }
     }
 }
 add_action('init', 'defensio_widget_register');
@@ -603,7 +609,13 @@ function defensio_render_activity_box() {
     global $defensio_db;
 
     $link_base = 'edit-comments.php';
-    $link = clean_url($link_base . "?page=defensio-quarantine.php");
+    $link_query =  "?page=defensio-quarantine.php";
+
+    if(function_exists('esc_url')){
+        $link = esc_url($link_base . $link_query);
+    } else {
+        $link = clean_url($link_base . $link_query);
+    }
 
     $obvious_spam_count = $defensio_db->obviousSpamCount();
     $total_spam_count =   $defensio_db->spamCount();
