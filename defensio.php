@@ -27,7 +27,7 @@ require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioDB.php');
 require_once('lib/DefensioWP.php');
 require_once('lib/defensio_utils.php');
-require_once('config.php');
+require_once('defensio_config.php');
 require_once('lib/views/defensio_configuration.php');
 require_once('lib/views/defensio_quarantine.php');
 require_once('lib/views/defensio_head.php');
