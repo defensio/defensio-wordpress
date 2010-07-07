@@ -1,5 +1,5 @@
 === Defensio Anti-Spam ===
-Contributors: karabunga
+Contributors: Karabunga
 Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
