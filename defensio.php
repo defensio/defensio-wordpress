@@ -23,6 +23,14 @@ function defensio_user_unique_option_key( $opt_name = NULL ) {
     }
 }
 
+/* 
+ * For some reason when MULTISITE is defined  
+ * current_user_can  and wp_get_current_user fail as undefined functions
+ * explicitly forcing load of pluggable.php to avoid that.
+ * */
+if (defined('MULTISITE') && MULTISITE ) 
+    require_once(ABSPATH . '/wp-includes/pluggable.php');
+
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioDB.php');
 require_once('lib/DefensioWP.php');
