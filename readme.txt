@@ -115,6 +115,10 @@ Visit our user forum at [http://forum.defensio.com](http://forum.defensio.com)
 
 
 == Changelog ==
+= 2.5.9 (08-30-2010) =
+* Fixed "malicious content detection not enabled" bug in stats
+* Fixed bug that broke some multi-site installations
+
 
 = 2.5.8 (07-07-2010) =
 * Fixed a problem that only affected new users on WP 3.0
