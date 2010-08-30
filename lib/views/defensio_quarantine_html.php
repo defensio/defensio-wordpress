@@ -415,8 +415,8 @@ function defensio_render_stats($v) {
 <?php } ?>
 	<ul>
 		<li><strong>Recent accuracy: <?php echo number_format( ((float)$v['stats']->accuracy) * 100, 2, '.', '')  ?>%</strong></li>
-		<li><?php echo $v['stats']->unwanted->spam ?> spam</li>
-		<li><?php echo !is_numeric($v['stats']->unwanted->malicious) ? 'Malicious content detection not enabled' : ($v['stats']->unwanted->malicious) . ' malicious comments' ?></li>
+    <li><?php echo $v['stats']->unwanted->spam ?> spam</li>
+    <li><?php echo $v['stats']->unwanted->malicious['nil']  ? 'Malicious content detection not enabled' :  ($v['stats']->unwanted->malicious) . ' malicious comments'  ?></li>
 		<li><?php echo $v['stats']->legitimate->total ?> legitimate comments</li>
 		<li><?php echo $v['stats']->{ 'false-negatives' } ?> false negatives (undetected spam)</li>
 		<li><?php echo $v['stats']->{ 'false-positives' } ?> false positives (legitimate comments identified as undesired)</li>

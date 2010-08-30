@@ -3,7 +3,7 @@
  * Plugin Name: Defensio Anti-Spam
  * Plugin URI: http://defensio.com/
  * Description: Defensio is an advanced spam filtering web service that learns and adapts to your behaviors as well to those of your readers and commenters.  To use this plugin, you need to obtain a <a href="http://defensio.com/signup">free API Key</a>.  Tell the world how many spam Defensio caught!  Just put <code>&lt;?php defensio_counter(); ?&gt;</code> in your template.
- * Version: 2.5.8
+ * Version: 2.5.9
  * Author: Websense, Inc.
  * Author URI: http://defensio.com
  *
@@ -22,6 +22,14 @@ function defensio_user_unique_option_key( $opt_name = NULL ) {
         return "defensio_". $userdata->ID."_$opt_name";
     }
 }
+
+/* 
+ * For some reason when MULTISITE is defined  
+ * current_user_can  and wp_get_current_user fail as undefined functions
+ * explicitly forcing load of pluggable.php to avoid that.
+ * */
+if (defined('MULTISITE') && MULTISITE ) 
+    require_once(ABSPATH . '/wp-includes/pluggable.php');
 
 require_once('lib/defensio-php/Defensio.php');
 require_once('lib/DefensioDB.php');
