@@ -4,7 +4,7 @@ Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
 Tested up to: 3.0
-Stable tag: 2.5.8
+Stable tag: 2.5.9
  
 Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
  
