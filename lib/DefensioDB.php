@@ -35,6 +35,13 @@ class DefensioDB
 
         if ( $force || $version < DefensioDB::TABLE_VERSION ) {
             $out = TRUE;
+            $charset_collate = '';
+
+            if ( ! empty($wpdb->charset) )
+                $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+            if ( ! empty($wpdb->collate) )
+                $charset_collate .= " COLLATE $wpdb->collate";
+
 
             /* From WP docs:
              *
@@ -53,7 +60,7 @@ class DefensioDB
                 classification ENUM('spam', 'legitimate', 'malicious'),
                 profanity_match TINYINT,
                 UNIQUE KEY comment_ID (comment_ID)
-            );";
+            ) $charset_collate;";
 
             dbDelta($sql);
 
