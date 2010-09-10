@@ -1,13 +1,4 @@
 <?php
-/* Include update functions when necessary */
-if(defined('ABSPATH') && ( function_exists('wp_get_current_user') ||  array_shift(split('\.', $wp_version))) == 3 ){
-
-    if(file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    } else {
-        require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
-    }
-}
 
 /* 
  * Abstract most of the necessary database work for Defensio's plugin
@@ -27,14 +18,22 @@ class DefensioDB
     /* Creates an empty table in Wordpresse's DB  ... or updates and old one from Defensio 1.x */
     public static function createTable($table_name, $version, $force = FALSE)
     { 
+        /* Include update functions when necessary */
+        if(defined('ABSPATH') && ( function_exists('wp_get_current_user') ||  array_shift(split('\.', $wp_version))) == 3 ){
+
+
+           if(file_exists(ABSPATH . 'wp-admin/includes/upgrade.php')) {
+               require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+           } else {
+               require_once(ABSPATH . 'wp-admin/upgrade-functions.php');
+           }
+        }
+
         global $wpdb;
         $out = FALSE;
-        $existent = DefensioDB::tableExists($table_name);
 
-        if(is_null($version))
-            $version = 0;
 
-        if ( $force || $version < DefensioDB::TABLE_VERSION || !$existent ) {
+        if ( $force || $version < DefensioDB::TABLE_VERSION ) {
             $out = TRUE;
 
             /* From WP docs:
@@ -58,10 +57,8 @@ class DefensioDB
 
             dbDelta($sql);
 
-            if($existent){
-                $wpdb->query("UPDATE ". $wpdb->prefix. 'defensio SET status = "ok"  WHERE spaminess >= 0');
-                $wpdb->query("UPDATE ". $wpdb->prefix. 'defensio SET status = "unprocessed" WHERE spaminess <  0');
-            }
+            $wpdb->query("UPDATE ". $wpdb->prefix. 'defensio SET status = "ok"  WHERE spaminess >= 0');
+            $wpdb->query("UPDATE ". $wpdb->prefix. 'defensio SET status = "unprocessed" WHERE spaminess <  0');
         }
 
         return $out;

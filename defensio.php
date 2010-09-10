@@ -70,9 +70,15 @@ register_activation_hook(__FILE__ , 'defensio_install');
  */
 function defensio_create_table() {
     $version = get_option('defensio_db_version');
+    $table_name = DefensioDB::getTableName();
 
-    if (DefensioDB::createTable(DefensioDB::getTableName(), $version))
-        update_option('defensio_db_version', DefensioDB::TABLE_VERSION);
+    if(is_null($version))
+        $version = 0;
+
+    if ($version < DefensioDB::TABLE_VERSION || !DefensioDB::tableExists($table_name) ){
+        if (DefensioDB::createTable(DefensioDB::getTableName(), $version, !DefensioDB::tableExists($table_name) ))
+            update_option('defensio_db_version', DefensioDB::TABLE_VERSION);
+    }
 }
 
 /**
@@ -97,7 +103,6 @@ function defensio_init() {
     defensio_create_table();
 }
 add_action('init', 'defensio_init');
-
 
 function defensio_styles() {
     global $defensio_plugin_url;
@@ -727,7 +732,7 @@ if ( !function_exists('wp_notify_postauthor') ):
     function wp_notify_postauthor($comment_id, $comment_type='') {
         $comment = get_comment($comment_id);
         $post    = get_post($comment->comment_post_ID);
-        $user    = get_userdata( $post->post_author );
+        $user    = get_userdata($post->post_author);
         $current_user = wp_get_current_user();
 
         if ( $comment->user_id == $post->post_author ) return false; // The author moderated a comment on his own post
