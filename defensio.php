@@ -710,9 +710,10 @@ add_action('load-edit-comments.php', 'defensio_redirect_to_qurantine');
 // Scheduling wp-cront task to take care of unprocessed and pending comments if callback was not received 
 
 /** Add a custom wp_cron reccurence */
-function defensio_custom_reccurence() {
+function defensio_custom_reccurence($schedules) {
     // Try to add every ten minutes, now warrantied by wp-cron!
-    return array('tenminutely' => array('interval' => 600, 'diplay' => 'Every ten minutes' ));
+    $schedules['tenminutely'] = array('interval' => 600, 'display' => 'Every ten minutes' );
+    return $schedules;
 }
 add_filter('cron_schedules', 'defensio_custom_reccurence');
 
