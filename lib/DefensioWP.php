@@ -117,12 +117,10 @@ class DefensioWP
                     $response = $this->defensio_client->getDocument($comment->signature);
                     $result = $response[1];
                 } catch (DefensioFail $ex) { 
-                    /* 
-                     * getDocument will throw DefensioFail on document not found instead of DefensioUnexpectedHTTPStatus; 
-                     * since  HTTP 404 makes sense as not found. In case a GET request for a pending comment fails whit and 
-                     * the HTTP status code is 404 something has gone terribly wrong and a signature was lost at some point; 
-                     * update as unprocessed to start over
-                     *  */
+                    /* getDocument will throw DefensioFail on document not found instead 
+                     * of DefensioUnexpectedHTTPStatus; since  HTTP 404 makes sense as not 
+                     * found. That being the case set this comment to be reprocessed.
+                     */
                     if ( $ex->http_status == 404 ) {
                         $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => self::UNPROCESSED));
                     }
@@ -476,7 +474,7 @@ class DefensioWP
     /**
      * Convert a comment object (result of get_comment) into an array according to Defensio's API
      * @param object $comment a WP comment object typically the return value of get_comment
-     * @returns array an array ready to send to Defensio /user/xxx/documents
+     * @return array an array ready to send to Defensio /user/xxx/documents
      */
     private function commentToDocument($comment)
     {
@@ -497,8 +495,8 @@ class DefensioWP
             $doc['type'] = $comment->comment_type;
         }
 
-        // Make sure it we don't send an SQL escaped string to the server
-        $doc['content'] = stripslashes($comment->comment_content);
+        // Make sure it we don't send a SQL escaped string to the server
+        $doc['content']      = stripslashes($comment->comment_content);
         $doc['author-email'] = $comment->comment_author_email;
         $doc['author-name']  = $comment->comment_author;
         $doc['author-url']   = $comment->comment_author_url;
