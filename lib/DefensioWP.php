@@ -352,7 +352,10 @@ class DefensioWP
                                 'comment_content'  => $comment->comment_content)); 
 
         if($approved_value == '0' )
-            wp_notify_moderator($comment->comment_ID); 
+            wp_notify_moderator($comment->comment_ID);
+
+        elseif($approved_value == '1' && get_option('comments_notify') )
+            wp_notify_postauthor($comment->comment_ID);
     }
 
     /**
