@@ -594,16 +594,18 @@ function defensio_widget_register() {
 <?php
         }
 
+
         if( function_exists('wp_register_sidebar_widget')){
-            wp_register_sidebar_widget('Defensio Counter', 'defensio_widget', NULL, 'defensio');
-            wp_register_widget_control('Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
+            wp_register_sidebar_widget('defensio_counter', 'Defensio Counter', 'defensio_widget');
+            wp_register_widget_control('defensio_counter', 'Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
         } else {
             register_sidebar_widget('Defensio Counter', 'defensio_widget', NULL, 'defensio');
             register_widget_control('Defensio Counter', 'defensio_widget_control', 300, 75, 'defensio');
         }
     }
 }
-add_action('init', 'defensio_widget_register');
+add_action('widgets_init', 'defensio_widget_register');
+
 
 /**
  * Shutdown hook, train comments scheduled to be trained
