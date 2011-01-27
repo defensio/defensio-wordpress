@@ -217,8 +217,18 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
         $spam_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&dt=spam&p=$comment->comment_post_ID&c=$comment->id", "delete-comment_$comment->id" ) );
 
         echo "<tr id='comment-$comment->id' class='spam $spaminess_class'>";
-        $columns = get_column_headers('edit-comments');
-        
+
+        // FIXME In 3.1 get_column_headers will fail waiting for WP Ajax list API to become 
+        // stable to refactor the whole thing
+        // $columns = get_column_headers('edit-comments');
+
+        $columns = array(
+            'cb'       => '<input type="checkbox" />',
+            'author'   => 'Author',
+            'comment'  => 'Comment',
+            'response' => 'In Response To'
+        );
+
         $hidden = (array) get_user_option( 'manage-comment-columns-hidden' );
         foreach ( $columns as $column_name => $column_display_name ) {
                 $class = "class=\"$column_name column-$column_name\"";
