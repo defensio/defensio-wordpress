@@ -5,7 +5,6 @@
  * 
  * @package Defensio
  */
-
 class DefensioWP
 {
     /* Defensio object, to be able to communicate with the server */
@@ -17,9 +16,6 @@ class DefensioWP
     /* Roles that will get trusted-user => true when their comments are send to Defensio */
     private $trusted_roles;
     private $authenticated;
-
-    public $deferred_ham_to_spam;
-    public $deferred_spam_to_ham;
 
     const DEFENSIO_PENDING_STATUS = 'defensio_pending';
     const PLATFORM_NAME = 'WordPress';
@@ -39,8 +35,6 @@ class DefensioWP
         $this->trusted_roles = array('administrator', 'editor', 'author');
         $this->defensio_client  = new Defensio($api_key, self::CLIENT_ID);
         $this->async_callback_url   = $async_callback_url;
-        $this->deferred_ham_to_spam = array();
-        $this->deferred_spam_to_ham = array();
     }
 
     /** 
@@ -50,7 +44,6 @@ class DefensioWP
      * Since PHP 5.3.2 serialization of a SimpleXML object will throw an exception, from now on we store only
      * raw strings in the cache and parse them everytime, should not be a problem since the xml Defensio results
      * are fairly small.
-     * 
      */
     public function getStats()
     {
@@ -461,11 +454,13 @@ class DefensioWP
 
                     if($filtered_content){
                         $profanity_match = 0; // Should not match anymore, avoid further calls to $defensio_client->postDictionaryFilter
-                        wp_update_comment(array('comment_ID' => $comment->comment_ID, 'comment_content' => $filtered_content ));
+                        wp_update_comment(array('comment_ID' => $comment->comment_ID, 
+                            'comment_content' => $filtered_content ));
                     }
                 }
 
-                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 'profanity_match' => $profanity_match));
+                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 
+                    'profanity_match' => $profanity_match));
                 break;
             default:
                 // Do nothing for any other values
