@@ -9,21 +9,23 @@ require_once(ABSPATH . '/wp-includes/plugin.php');
 require_once('defensio_config.php');
 
 global $wpdb, $defensio_conf;
-
 defensio_set_key();
 
 if( !isset($_GET['id']) || ($_GET['id'] != md5($defensio_conf['key'])) )
     die('Could not authenticate. Bye bye!');
 
-try{
-
-    $response = Defensio::handlePostDocumentAsyncCallback();
+try {
+    // Supressing possible warning here, if input cannot be parsed we want defensio to 
+    // know if a warning is printed this file will return a HTTP 2xx response we need to 
+    // override the headers to have a 5xx one.
+    @$response = Defensio::handlePostDocumentAsyncCallback();
     $manager  = new DefensioWP($defensio_conf['key'], $defensio_conf['server'], $defensio_conf['async_callback_url']);
     $manager->applyCallbackResult($response[1]);
-
-} catch (DefensioEmptyCallbackData $ex){
-
+} catch (DefensioEmptyCallbackData $ex) {
     die('I need some data to be useful!');
+} catch (Exception $ex) {
+    header('HTTP/1.0 500 Internal Server Error', true);
+    die('Error handling Defensio result');
 }
 
 ?>
