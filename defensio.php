@@ -677,7 +677,7 @@ add_action('load-edit-comments.php', 'defensio_redirect_to_qurantine');
 /** Add a custom wp_cron reccurence */
 function defensio_custom_reccurence($schedules) {
     // Try to add every ten minutes, now warrantied by wp-cron!
-    $schedules['tenminutely'] = array('interval' => 6, 'display' => 'Every ten minutes' );
+    $schedules['tenminutely'] = array('interval' => 600, 'display' => 'Every ten minutes' );
     return $schedules;
 }
 add_filter('cron_schedules', 'defensio_custom_reccurence');

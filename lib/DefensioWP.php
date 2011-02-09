@@ -13,7 +13,7 @@ class DefensioWP
     private $defensio_db;
     /* Where to receive callbacks from Defensio's servers */
     private $async_callback_url;
-    /* Roles that will get trusted-user => true when their comments are send to Defensio */
+    /* Roles that will make trusted-user => true when their comments are send to Defensio */
     private $trusted_roles;
     private $authenticated;
 
@@ -137,7 +137,7 @@ class DefensioWP
         $this->retrain('ham', $signatures);
     }
 
-    /** Get stats from the Defensio's server */
+    /** Get stats from Defensio's server */
     private function refreshStats()
     {
         $out = FALSE;
@@ -488,7 +488,6 @@ class DefensioWP
 
         if (!isset($comment->comment_type) || empty($comment->comment_type)) {
             $doc['type'] = 'comment';
-
         } else {
             $doc['type'] = $comment->comment_type;
         }
@@ -498,11 +497,10 @@ class DefensioWP
         $doc['author-email'] = $comment->comment_author_email;
         $doc['author-name']  = $comment->comment_author;
         $doc['author-url']   = $comment->comment_author_url;
-        $doc['author-ip']    =  preg_replace( '/[^0-9., ]/', '', $comment->comment_author_IP );
+        $doc['author-ip']    = preg_replace( '/[^0-9., ]/', '', $comment->comment_author_IP );
 
-        if ( $this->isOpenIdEnabled() ) {
-            $identity = get_user_openids(null);
-
+        if ($this->isOpenIdEnabled()) {
+            $identity = get_user_openids(NULL);
             // Take the first URL.
             if(is_array($identity)) {
                 $identity = @array_pop($identity);
@@ -510,9 +508,14 @@ class DefensioWP
             $doc['author-openid'] = $identity;
         }
 
-        $doc['platform']  = self::PLATFORM_NAME ;
+        $doc['platform']  = self::PLATFORM_NAME;
         $doc['parent-document-permalink'] = get_permalink($comment->comment_post_ID);
-        $doc['parent-document-date'] = strftime( "%Y-%m-%d", strtotime(get_post($comment->comment_post_ID)->post_modified_gmt));
+        $parent_document_date = strtotime(get_post($comment->comment_post_ID)->post_modified_gmt);
+
+        // Make parent document date makes sense
+        if( $parent_document_date != -1 && $parent_document_date)
+            $doc['parent-document-date'] = strftime("%Y-%m-%d", $parent_document_date);
+
         return $doc;
     }
 
