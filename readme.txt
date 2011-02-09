@@ -112,7 +112,7 @@ Visit our FAQ at [http://defensio.com/faq](http://defensio.com/faq)
  
 == Need Help? ==
  
-Visit our user forum at [http://forum.defensio.com](http://forum.defensio.com)
+Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 
 
 == Changelog ==
