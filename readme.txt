@@ -1,19 +1,20 @@
 === Defensio Anti-Spam ===
-Contributors: Karabunga
+Contributors: Websense Inc.
 Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
-Tested up to: 3.0
-Stable tag: 2.5.8
+Tested up to: 3.1
+Stable tag: 2.6.0
  
-Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
+Defensio is an advanced spam, malicious content and profanity filtering web service that learns and adapts.
  
 == Description ==
  
-Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your readers.
+Defensio is an advanced spam filtering web service that learns and adapts to your behaviors and those of your users.
+In addition to simple spam filtering, we also provide world-class malicious content detection, profanity filtering,
+URL categorization, script detection and much more.
  
-Advanced features such as support for OpenID, detailed statistics, charts, RSS feed of our comments (innocent and spam)
-and counter widget are also available.
+Advanced features such as support for OpenID, detailed statistics, charts and counter widget are also available.
  
 Defensio aims to be an all-in-one anti-spam solution.  Therefore, using it along with other anti-spam plugins WILL
 cause problems.  PLEASE deactivate Akismet and other similar plugins before activating Defensio.
@@ -115,10 +116,14 @@ Visit our user forum at [http://forum.defensio.com](http://forum.defensio.com)
 
 
 == Changelog ==
+
+= 2.6.0 (02-10-2011) =
+* Improved support for Wordpress 3.1
+* Misc minor bug fixes
+
 = 2.5.9 (08-30-2010) =
 * Fixed "malicious content detection not enabled" bug in stats
 * Fixed bug that broke some multi-site installations
-
 
 = 2.5.8 (07-07-2010) =
 * Fixed a problem that only affected new users on WP 3.0
