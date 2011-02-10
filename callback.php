@@ -15,11 +15,11 @@ if( !isset($_GET['id']) || ($_GET['id'] != md5($defensio_conf['key'])) )
     die('Could not authenticate. Bye bye!');
 
 try {
-    // Supressing possible warning here, if input cannot be parsed we want defensio to 
-    // know if a warning is printed this file will return a HTTP 2xx response we need to 
-    // override the headers to have a 5xx one.
+    // Supressing possible warning here. Even if the input cannot be parsed we want 
+    // Defensio to know something went wrong; if a warning is printed this file we won't 
+    // be able to override the headers to have a 5xx status.
     @$response = Defensio::handlePostDocumentAsyncCallback();
-    $manager  = new DefensioWP($defensio_conf['key'], $defensio_conf['server'], $defensio_conf['async_callback_url']);
+    $manager   = new DefensioWP($defensio_conf['key'], $defensio_conf['server'], $defensio_conf['async_callback_url']);
     $manager->applyCallbackResult($response[1]);
 } catch (DefensioEmptyCallbackData $ex) {
     die('I need some data to be useful!');

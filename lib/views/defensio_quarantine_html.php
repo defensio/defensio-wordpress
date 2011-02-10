@@ -218,10 +218,6 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 
         echo "<tr id='comment-$comment->id' class='spam $spaminess_class'>";
 
-        // FIXME In 3.1 get_column_headers will fail waiting for WP Ajax list API to become 
-        // stable to refactor the whole thing
-        // $columns = get_column_headers('edit-comments');
-
         $columns = array(
             'cb'       => '<input type="checkbox" />',
             'author'   => 'Author',
