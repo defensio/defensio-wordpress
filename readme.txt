@@ -117,8 +117,8 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 
 == Changelog ==
 
-= 2.6.0 (02-10-2011) =
-* Improved support for Wordpress 3.1
+= 2.6.0 (02-14-2011 -- Valentine's Day) =
+* Official support for Wordpress 3.1
 * Misc minor bug fixes
 
 = 2.5.9 (08-30-2010) =
