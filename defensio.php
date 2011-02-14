@@ -233,7 +233,7 @@ function defensio_configuration() {
         'valid'         => $valid,
         'remove_older_than_days'   => get_option('defensio_delete_older_than_days'),
         'remove_older_than'        => get_option('defensio_delete_older_than'),
-        'profanity_do'         => $profanity_do,
+        'profanity_do'             => $profanity_do,
         'remove_older_than_error'  => $older_than_error,
         'defensio_post_error_code' => $err_code
     ));
@@ -339,7 +339,7 @@ function defensio_caught( $opts = NULL ) {
         $type = trim($opts['type']);
 
     $query_param = $opts['search']; 
-    $comments    =  $defensio_db->getQuarantineComments($page, $opts['items_per_page'], $order, $type, $query_param );
+    $comments    = $defensio_db->getQuarantineComments($page, $opts['items_per_page'], $order, $type, $query_param );
     $spam_count  = count($comments);
 
     if (trim($order) == 'comment_date' || trim($order) == 'post_date')
@@ -367,6 +367,7 @@ function defensio_caught( $opts = NULL ) {
     );
 }
 
+/* Parses user request*/
 function defensio_dispatch() {
     global $defensio_conf ;
 
