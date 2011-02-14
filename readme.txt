@@ -4,7 +4,7 @@ Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
 Tested up to: 3.1
-Stable tag: 2.6.0
+Stable tag: 2.6.1
  
 Defensio is an advanced spam, malicious content and profanity filtering web service that learns and adapts.
  
@@ -116,6 +116,9 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 
 
 == Changelog ==
+
+= 2.6.1 (02-14-2011) =
+* Fix missing file bug that prevented activation of the plugin
 
 = 2.6.0 (02-14-2011 -- Valentine's Day) =
 * Official support for Wordpress 3.1
