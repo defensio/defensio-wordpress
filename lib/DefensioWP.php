@@ -5,7 +5,6 @@
  * 
  * @package Defensio
  */
-
 class DefensioWP
 {
     /* Defensio object, to be able to communicate with the server */
@@ -14,12 +13,9 @@ class DefensioWP
     private $defensio_db;
     /* Where to receive callbacks from Defensio's servers */
     private $async_callback_url;
-    /* Roles that will get trusted-user => true when their comments are send to Defensio */
+    /* Roles that will make trusted-user => true when their comments are send to Defensio */
     private $trusted_roles;
     private $authenticated;
-
-    public $deferred_ham_to_spam;
-    public $deferred_spam_to_ham;
 
     const DEFENSIO_PENDING_STATUS = 'defensio_pending';
     const PLATFORM_NAME = 'WordPress';
@@ -39,8 +35,6 @@ class DefensioWP
         $this->trusted_roles = array('administrator', 'editor', 'author');
         $this->defensio_client  = new Defensio($api_key, self::CLIENT_ID);
         $this->async_callback_url   = $async_callback_url;
-        $this->deferred_ham_to_spam = array();
-        $this->deferred_spam_to_ham = array();
     }
 
     /** 
@@ -50,7 +44,6 @@ class DefensioWP
      * Since PHP 5.3.2 serialization of a SimpleXML object will throw an exception, from now on we store only
      * raw strings in the cache and parse them everytime, should not be a problem since the xml Defensio results
      * are fairly small.
-     * 
      */
     public function getStats()
     {
@@ -117,12 +110,10 @@ class DefensioWP
                     $response = $this->defensio_client->getDocument($comment->signature);
                     $result = $response[1];
                 } catch (DefensioFail $ex) { 
-                    /* 
-                     * getDocument will throw DefensioFail on document not found instead of DefensioUnexpectedHTTPStatus; 
-                     * since  HTTP 404 makes sense as not found. In case a GET request for a pending comment fails whit and 
-                     * the HTTP status code is 404 something has gone terribly wrong and a signature was lost at some point; 
-                     * update as unprocessed to start over
-                     *  */
+                    /* getDocument will throw DefensioFail on document not found instead 
+                     * of DefensioUnexpectedHTTPStatus; since  HTTP 404 makes sense as not 
+                     * found. That being the case set this comment to be reprocessed.
+                     */
                     if ( $ex->http_status == 404 ) {
                         $this->defensio_db->updateDefensioRow($comment->comment_ID, array('status' => self::UNPROCESSED));
                     }
@@ -146,7 +137,7 @@ class DefensioWP
         $this->retrain('ham', $signatures);
     }
 
-    /** Get stats from the Defensio's server */
+    /** Get stats from Defensio's server */
     private function refreshStats()
     {
         $out = FALSE;
@@ -354,7 +345,10 @@ class DefensioWP
                                 'comment_content'  => $comment->comment_content)); 
 
         if($approved_value == '0' )
-            wp_notify_moderator($comment->comment_ID); 
+            wp_notify_moderator($comment->comment_ID);
+
+        elseif($approved_value == '1' && get_option('comments_notify') )
+            wp_notify_postauthor($comment->comment_ID);
     }
 
     /**
@@ -460,11 +454,13 @@ class DefensioWP
 
                     if($filtered_content){
                         $profanity_match = 0; // Should not match anymore, avoid further calls to $defensio_client->postDictionaryFilter
-                        wp_update_comment(array('comment_ID' => $comment->comment_ID, 'comment_content' => $filtered_content ));
+                        wp_update_comment(array('comment_ID' => $comment->comment_ID, 
+                            'comment_content' => $filtered_content ));
                     }
                 }
 
-                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 'profanity_match' => $profanity_match));
+                $this->defensio_db->updateDefensioRow($row[0]->comment_ID, array('spaminess' => 0, 'status' => self::OK, 
+                    'profanity_match' => $profanity_match));
                 break;
             default:
                 // Do nothing for any other values
@@ -476,7 +472,7 @@ class DefensioWP
     /**
      * Convert a comment object (result of get_comment) into an array according to Defensio's API
      * @param object $comment a WP comment object typically the return value of get_comment
-     * @returns array an array ready to send to Defensio /user/xxx/documents
+     * @return array an array ready to send to Defensio /user/xxx/documents
      */
     private function commentToDocument($comment)
     {
@@ -492,21 +488,19 @@ class DefensioWP
 
         if (!isset($comment->comment_type) || empty($comment->comment_type)) {
             $doc['type'] = 'comment';
-
         } else {
             $doc['type'] = $comment->comment_type;
         }
 
-        // Make sure it we don't send an SQL escaped string to the server
-        $doc['content'] = stripslashes($comment->comment_content);
+        // Make sure it we don't send a SQL escaped string to the server
+        $doc['content']      = stripslashes($comment->comment_content);
         $doc['author-email'] = $comment->comment_author_email;
         $doc['author-name']  = $comment->comment_author;
         $doc['author-url']   = $comment->comment_author_url;
-        $doc['author-ip']    =  preg_replace( '/[^0-9., ]/', '', $comment->comment_author_IP );
+        $doc['author-ip']    = preg_replace( '/[^0-9., ]/', '', $comment->comment_author_IP );
 
-        if ( $this->isOpenIdEnabled() ) {
-            $identity = get_user_openids(null);
-
+        if ($this->isOpenIdEnabled()) {
+            $identity = get_user_openids(NULL);
             // Take the first URL.
             if(is_array($identity)) {
                 $identity = @array_pop($identity);
@@ -514,9 +508,14 @@ class DefensioWP
             $doc['author-openid'] = $identity;
         }
 
-        $doc['platform']  = self::PLATFORM_NAME ;
+        $doc['platform']  = self::PLATFORM_NAME;
         $doc['parent-document-permalink'] = get_permalink($comment->comment_post_ID);
-        $doc['parent-document-date'] = strftime( "%Y-%m-%d", strtotime(get_post($comment->comment_post_ID)->post_modified_gmt));
+        $parent_document_date = strtotime(get_post($comment->comment_post_ID)->post_modified_gmt);
+
+        // Make parent document date makes sense
+        if( $parent_document_date != -1 && $parent_document_date)
+            $doc['parent-document-date'] = strftime("%Y-%m-%d", $parent_document_date);
+
         return $doc;
     }
 

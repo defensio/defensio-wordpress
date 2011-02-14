@@ -217,8 +217,14 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
         $spam_url = clean_url( wp_nonce_url( "comment.php?action=deletecomment&dt=spam&p=$comment->comment_post_ID&c=$comment->id", "delete-comment_$comment->id" ) );
 
         echo "<tr id='comment-$comment->id' class='spam $spaminess_class'>";
-        $columns = get_column_headers('edit-comments');
-        
+
+        $columns = array(
+            'cb'       => '<input type="checkbox" />',
+            'author'   => 'Author',
+            'comment'  => 'Comment',
+            'response' => 'In Response To'
+        );
+
         $hidden = (array) get_user_option( 'manage-comment-columns-hidden' );
         foreach ( $columns as $column_name => $column_display_name ) {
                 $class = "class=\"$column_name column-$column_name\"";
@@ -233,10 +239,11 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
                         case 'cb':
                                 if ( !$checkbox ) break;
                                 echo '<th scope="row" class="check-column">';
-                                if ( current_user_can('edit_post', $comment->comment_post_ID) ) echo "<input type='checkbox' name='delete_comments[]' value='$comment->id' />";
+                                if ( current_user_can('edit_post', $comment->comment_post_ID) ) echo "<input type='checkbox' name='defensio_comments[]' value='$comment->id' />";
                                 echo '</th>';
                                 break;
                         case 'comment':
+
                                 echo "<td $attributes>"; 
 
 				echo '<div id="submitted-on">';
@@ -249,7 +256,7 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
 																	<?php echo ($comment->comment_content) ?>
                                 </p>
 
-                                <?php if($c->classification == 'malicious'){ ?> 
+                                <?php if( $c->classification == 'malicious' ){ ?> 
                                 <span class="malicious_label"><strong>Warning:</strong> Contains malicious content</span>
                                 <?php } ?>
 
@@ -309,12 +316,15 @@ function defensio_wp_comment_row( $c, $mode, $checkbox = true) {
                         case 'date':
                                 echo "<td $attributes>" . get_comment_date(__('Y/m/d \a\t g:ia')) . '</td>';
                                 break;
+                                    
                         case 'response':
-                                if ( 'single' !== $mode ) {
+
+                                if (  $mode != 'single'  ) {
                                         echo "<td $attributes>\n";
                                         echo "&quot;$post_link&quot; ";
                                         echo '<a href="edit-comments.php?p=' . $post->ID;
                                         if ( !empty($_GET['comment_type']) ) echo '&amp;comment_type=' . htmlspecialchars( $_GET['comment_type'] );
+
                                         echo '">' . sprintf ( __ngettext('(%s comment)', '(%s comments)', $post->comment_count), $post->comment_count ) . '</a><br />';
                                         echo get_the_time(__('Y/m/d \a\t g:ia'));
                                         echo '</td>';
@@ -364,7 +374,6 @@ function defensio_render_spam_list($v) {
 }
 
 function defensio_render_group_header($title) {
-	//echo "<li><ul class='defensio_comment_group'><li class='defensio_post_title'>  $title </li>";
 	echo "<tr class='defensio_comment_group'><td colspan=4>$title</td></tr>";
 }
 
