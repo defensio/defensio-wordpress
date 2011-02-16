@@ -117,6 +117,9 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 
 == Changelog ==
 
+= NEXT_VERSION =
+* Added deploy helper scripts to Git repo
+
 = 2.6.1 (02-14-2011) =
 * Fix missing file bug that prevented activation of the plugin
 
