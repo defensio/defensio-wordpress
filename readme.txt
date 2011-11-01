@@ -3,7 +3,7 @@ Contributors: Websense Inc.
 Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
-Tested up to: 3.1
+Tested up to: 3.2.1
 Stable tag: 2.6.1
  
 Defensio is an advanced spam, malicious content and profanity filtering web service that learns and adapts.
@@ -66,7 +66,7 @@ If you wish to enable OpenID support, you must also install another plugin calle
  
 Love Defensio?  Spread the word by featuring how many spam comments Defensio filtered with the Defensio Counter!
  
-If your Wordpress theme supports widgets, simply add the Defensio Counter widget to your sidebar.  You can set color
+If your WordPress theme supports widgets, simply add the Defensio Counter widget to your sidebar.  You can set color
 and alignment options.
  
 If your theme does NOT support widgets, all hope is not lost.  You can simply edit your 'sidebar.php' file and add 
@@ -98,8 +98,8 @@ the images directory.  Be careful to follow the naming convention we already hav
 
 == Compatibility ==
 
-Defensio does not work with Wordpress 2.9 due to a known Wordpress bug (http://core.trac.wordpress.org/ticket/11505).
-This bug has been fixed in Wordpress 2.9.1, so make sure to update your installation before using Defensio.
+Defensio does not work with WordPress 2.9 due to a known WordPress bug (http://core.trac.wordpress.org/ticket/11505).
+This bug has been fixed in WordPress 2.9.1, so make sure to update your installation before using Defensio.
 
 PHP 5 is also required. This plugin will NOT work with PHP 4.
 
@@ -118,13 +118,13 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 == Changelog ==
 
 = NEXT_VERSION =
-* Added deploy helper scripts to Git repo
+* Official support for WordPress 3.2.1
 
 = 2.6.1 (02-14-2011) =
 * Fix missing file bug that prevented activation of the plugin
 
 = 2.6.0 (02-14-2011 -- Valentine's Day) =
-* Official support for Wordpress 3.1
+* Official support for WordPress 3.1
 * Misc minor bug fixes
 
 = 2.5.9 (08-30-2010) =
@@ -139,15 +139,15 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 * Fixed mysteriously disappearing API keys
 
 = 2.5.6 (06-30-2010) =
-* Fixed an important bug that caused invalid requests to be sent to Defensio under Wordpress 3.0
+* Fixed an important bug that caused invalid requests to be sent to Defensio under WordPress 3.0
 
 = 2.5.5 (06-17-2010) =
 * Fixed bug causing a PHP crash on some configurations
 * A few minor fixes
-* Support for Wordpress 3.0
+* Support for WordPress 3.0
 
 = 2.5.4 (unreleased) =
-* Moved CHANGELOG.txt to readme.txt for better Wordpress.org/extend compatibility
+* Moved CHANGELOG.txt to readme.txt for better WordPress.org/extend compatibility
 
 = 2.5.3 (01-14-2010) =
 * Fixed bug causing admins to sometimes being notified of spam by email
