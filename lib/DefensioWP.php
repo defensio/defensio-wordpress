@@ -22,7 +22,7 @@ class DefensioWP
     const UNPROCESSED   = 'unprocessed';
     const PENDING       = 'pending';
     const OK            = 'ok';
-    const CLIENT_ID     = 'Defensio for Wordpress | 2.5.9 | Websense Inc. | info@defensio.com';
+    const CLIENT_ID     = 'Defensio for Wordpress | 2.6.2 | Websense Inc. | info@defensio.com';
 
     /**
      * @param string $api_key A Defensio API key
