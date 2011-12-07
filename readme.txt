@@ -3,7 +3,7 @@ Contributors: Websense Inc.
 Donate link: http://defensio.com/
 Tags: comments, spam, antispam, defensio
 Requires at least: 2.8
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: 2.6.2
  
 Defensio is an advanced spam, malicious content and profanity filtering web service that learns and adapts.
@@ -116,6 +116,9 @@ Visit our helpdesk at [http://help.defensio.com](http://help.defensio.com)
 
 
 == Changelog ==
+
+= NEXT_VERSION =
+* Official support for WordPress 3.3
 
 = 2.6.2 (11-01-2011) =
 * Official support for WordPress 3.2.1
